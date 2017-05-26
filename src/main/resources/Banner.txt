@@ -1,0 +1,15 @@
+       ```````   ```````                          `..````               ````````````     ``````` 
+      -:/oooo:- -:+oooo:-                        `::+ooo:-             `::oooo/+ooo:-   -:oooo/-`
+      -/shhhh/-`:+hhhhh:-  .----------.`.---------:/hhhy--.----.       `/+hhhh-shhh:-  -/shhho-. 
+     -/sdddddo.-/hddddd:- ./yhhhhhhhhy/:/ohhhyyhhhooddd/.:yhhy+/.      -/ydddo`sddd-.`:+hddd+..  
+    .+smmdymmy.:dmmdmmm/- -+++++/+hmmm/:/ymmmyoooo-hmmh.odmms:-.      `+ommmm-.ymmm:-:odmmd/.`      
+   `+omNN++NNd-hNNosNNN/-/shhhhhyymNNd.-+mNNh..`.:oNNNdmNNd+/--       /odNNNy.-hNNN:-smNNd-.`       
+   +sdNNh./NNNhNNs.sNNN/-oNNNhyyydNNN+-:yNNN/-` :odNNmdddNNNN+/`     `osNNNN:-:hNNN:sNNNh--`        
+  /shddh--/dddddo.-sddd/:dddo..:/dddh-:+dddy-- `symddo.--hddh-:      /sdddds-:+hdddhdddo--          
+ -yhNNN+-:+mNNNy--/hNNN/+NNNy+oshNNNo-/hNNN/-` :ydNNm-:/sNNNs-.     `yhNNNN::-odNNNNNm+-.           
+ yhNNNy--:sdNNh--.shNNN//mNNNNmsmNNm::omNNd-:  shmNNs-/odNNm::`     /hmNNNy---sdNNNNd:-.            
+ yysoo++:-yyso//``yyso++/+o+++/:++++/+osoo++/  sysoo++:ssso+++`     :hyso+++:.ysso++/:`             
+  ``````   ````    ````` `````` ````` ``````    `````   `````         ``````   ``````               
+  ${AnsiColor.BLUE}:: Mark IV Mgt :: ${application.title} ${AnsiColor.DEFAULT} ${application.formatted-version}
+
+  ${AnsiColor.GREEN}:: Spring Boot :: ${AnsiColor.DEFAULT} ${spring-boot.formatted-version}
