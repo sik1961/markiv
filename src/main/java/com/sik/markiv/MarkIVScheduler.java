@@ -15,7 +15,10 @@ public class MarkIVScheduler {
 	private static final Logger LOG = Logger.getLogger(MarkIVScheduler.class);
 
 	public static void main(String[] args) throws Exception {
-		SpringApplication.run(MarkIVScheduler.class);
+		SpringApplication app = new SpringApplication(MarkIVScheduler.class);
+		//app.setBanner(banner);
+		app.run(args);
+		//SpringApplication.run(MarkIVScheduler.class);
 	}
 
 	@Bean
