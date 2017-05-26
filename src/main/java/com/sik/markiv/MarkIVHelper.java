@@ -7,10 +7,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import com.sik.markiv.api.CalendarEvent;
+import com.sik.markiv.api.EventType;
 import com.sik.markiv.events.EventManager;
 import com.sik.markiv.exception.MarkIVException;
 import com.sik.markiv.ftp.MarkIVUploader;
@@ -62,6 +66,29 @@ public class MarkIVHelper {
 		}
 
 		mul.upload(props.getProperty("ProjectName"), uploadFiles);
+	}
+	
+	public void doAvailabilityStats() {
+		Map<String,Integer> statMap = new TreeMap<>();
+		for (CalendarEvent e: em.getAllEvents()) {
+			if (e.getEventType() == EventType.UNAVAILABILITY) {
+				statMap = updateStatMap(e.getSummary(), statMap);
+			}
+		}
+		for (String key: statMap.keySet()) {
+			LOG.info("Unavailable: " + key.toUpperCase() + " " + statMap.get(key) + " days " + 
+					(statMap.get(key)/365)*100 + "%");
+		}
+	}
+
+	private Map<String,Integer> updateStatMap(String summary, Map<String, Integer> statMap) {
+		String mapKey = summary.toLowerCase().replace("unavailable", "").trim();
+		if (statMap.get(mapKey)==null) {
+			statMap.put(mapKey, 1);
+		} else {
+			statMap.put(mapKey, statMap.get(mapKey) + 1);
+		}
+		return statMap;
 	}
 
 	public void buildAvailPage() {

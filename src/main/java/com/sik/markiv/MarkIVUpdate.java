@@ -19,8 +19,8 @@ import com.sik.markiv.google.calendar.MarkIVCalendarFeed;
 public class MarkIVUpdate {
 
 	DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
-	private static final String HALF_HOURLY = "0 0 7-23 * * *"; // hourly 7am-11pm
-	private static final String DAILY = "0 30 23 * * *"; // daily @ 11:30pm
+	private static final String DAYTIME = "0 0 7-23 * * *"; // hourly 7am-11pm
+	private static final String END_OF_DAY = "0 30 23 * * *"; // daily @ 11:30pm
 	private static final Logger LOG = Logger.getLogger(MarkIVUpdate.class);
 
 	MarkIVHelper m4h;
@@ -36,12 +36,12 @@ public class MarkIVUpdate {
 		this.calendarLastUpdate = new LocalDateTime(0);
 	}
 
-	@Scheduled(cron = HALF_HOURLY)
+	@Scheduled(cron = DAYTIME)
 	public void m4Update() throws MarkIVException {
 		update(false);
 	}
 
-	@Scheduled(cron = DAILY)
+	@Scheduled(cron = END_OF_DAY)
 	public void m4DailyUpdate() throws MarkIVException {
 		update(true);
 	}
@@ -69,6 +69,9 @@ public class MarkIVUpdate {
 
 			LOG.info("Mark IV Mgt - Building Availability Page");
 			m4h.buildAvailPage();
+			
+			LOG.info("Mark IV Mgt - Availablity Stats");
+			m4h.doAvailabilityStats();
 			
 			LOG.info("Mark IV Mgt - Building News Page");
 			m4h.buildNewsPage();
