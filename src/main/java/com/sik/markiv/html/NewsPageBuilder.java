@@ -20,8 +20,7 @@ import com.sik.markiv.utils.M4DateUtils;
 public class NewsPageBuilder {
 	private static final Logger LOG = Logger.getLogger(NewsPageBuilder.class);
 
-	private static final DateTimeFormatter NEWS_GIG_DF = DateTimeFormat
-			.forPattern("EEE d MMMM ha");
+	private static final DateTimeFormatter NEWS_GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
 
 	private static final String NEWLINE = "\n";
 	private static final String PRIVATE = "private";
@@ -34,7 +33,9 @@ public class NewsPageBuilder {
 	private static final String HEAD_FMT5 = " </td>" + NEWLINE;
 	private static final String HEAD_FMT6 = "<tr><td><center><b2>News</b2></center></td></tr>";
 	private static final String HEAD_FMT7 = "</tr>" + NEWLINE + "<tr><td><center>";
+	private static final String LAST_UPDATE_FORMAT = "<tr><td><center><p>Page last updated at %s</p></center></td></tr>";
 	private static final String TAIL_FMT8 = "</td></tr></table>" + NEWLINE;
+	private static final String HTML_BREAK = "<br>";
 	
 	private EventManager em;
 	private HtmlManager htmlMgr;
@@ -82,12 +83,10 @@ public class NewsPageBuilder {
 		
 		for (String newsItem: this.getFixedNewsItems()) {
 			LOG.info("News item: " + newsItem);
-			newsHtml.append(this.cleanForHtml(newsItem + "<br><br>" + NEWLINE));
+			newsHtml.append(this.cleanForHtml(newsItem + HTML_BREAK + HTML_BREAK + NEWLINE));
 		}
 				 
-		newsHtml.append(String.format(
-				"<tr><td><center><p>Page last updated at %s</p></center></td></tr>",
-				new Date()));
+		newsHtml.append(String.format(LAST_UPDATE_FORMAT,	new Date()));
 		
 		newsHtml.append(TAIL_FMT8 + NEWLINE);
 		
