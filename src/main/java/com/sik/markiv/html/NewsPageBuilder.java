@@ -24,6 +24,8 @@ public class NewsPageBuilder {
 			.forPattern("EEE d MMMM ha");
 
 	private static final String NEWLINE = "\n";
+	private static final String PRIVATE = "private";
+	private static final String GIG = "gig";
 	private static final String NEWS_FORMAT = "<li>Our next gig is on <strong>%s</strong> at <strong>%s</strong> - Hope to see you there<br><br>";
 	private static final String HEAD_FMT1 = "<tr><td><center>" + NEWLINE;
 	private static final String HEAD_FMT2 = "<img src=\"images/m4front.jpg\" width=\"50%\" height=\"50%\"><br>\n" + NEWLINE;
@@ -99,7 +101,7 @@ public class NewsPageBuilder {
 	private CalendarEvent getNextPublicGig(List<CalendarEvent> gigs) {
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
-				if (isGig(e) && !e.isEventPrivate()) { 
+				if (isGig(e) && isGigPrivate(e)) {
 					return e;
 				}
 			}
@@ -111,7 +113,7 @@ public class NewsPageBuilder {
 		List<String> fixedNewsItems = new ArrayList<String>();
 		//fixedNewsItems.add("<li>Pictures from our gig at The Hillsborough Hotel are on the gallery page - click <a href=\"gallery.htm\">here</a>");
 		fixedNewsItems.add("<li>To book <b2>Mark IV</b2> eMail us at <a href=\"mailto:markiv.band@gmail.com\">markiv.band@gmail.com</a>");
-		fixedNewsItems.add("<li>We're now registered on	<b2><a href=\"http://www.gigz4u.co.uk/\">GIGZ4U</a></b2> - Use it to find our gigs and other live music in the Sheffield area.");
+		//fixedNewsItems.add("<li>We're now registered on	<b2><a href=\"http://www.gigz4u.co.uk/\">GIGZ4U</a></b2> - Use it to find our gigs and other live music in the Sheffield area.");
 		fixedNewsItems.add("<li>Listen to our Demo CD \"Drivin' West\" on SoundCloud By clicking <a href=\"https://soundcloud.com/markiv-1/sets/drivin-west\" target=\"-blank\">here</a>");
 		return fixedNewsItems; 
 	}
@@ -121,7 +123,11 @@ public class NewsPageBuilder {
 	 * @return
 	 */
 	private boolean isGig(CalendarEvent e) {
-		return e.getSummary().toLowerCase().contains("gig");
+		return e.getSummary().toLowerCase().contains(GIG);
+	}
+
+	private boolean isGigPrivate(CalendarEvent e) {
+		return (e.isEventPrivate() || e.getLocation().toLowerCase().contains(PRIVATE));
 	}
 
 	private String cleanForHtml(final String s) {
