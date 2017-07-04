@@ -8,3 +8,9 @@
 /target/
 
 \.settings/
+
+*.iml
+
+\.idea/libraries/
+
+\.idea/
