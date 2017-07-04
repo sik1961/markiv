@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sik.markiv</groupId>
 	<artifactId>markiv</artifactId>
-	<version>0.4.7</version>
+	<version>0.4.8</version>
 	<name>Mark IV Mgt</name>
 	<dependencies>
 		<dependency>
@@ -125,7 +125,7 @@
 					<configuration>
   						<archive>
     						<manifest>
-								<mainClass>com.sik.markiv.MarkIV</mainClass>
+								<mainClass>com.sik.markiv.MarkIVScheduler</mainClass>
 								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               					<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
     						</manifest>

@@ -28,6 +28,28 @@ import com.sik.markiv.utils.M4DateUtils;
 
 public class EventManager {
 	private static final Logger LOG = Logger.getLogger(EventManager.class);
+	private static final String PRIVATE = "private";
+	private static final String WEDDING = "wedding";
+	private static final String SUMMARY = "SUMMARY";
+	private static final String LOCATION = "LOCATION";
+	private static final String CLASS = "CLASS";
+	private static final String ORGANIZER = "ORGANIZER;CN";
+	private static final String DESCRIPTION = "DESCRIPTION";
+	private static final String SEMICOLON = ";";
+	private static final String COLON = ":";
+	private static final String DTSTART = "DTSTART";
+	private static final String DTEND = "DTEND";
+	private static final String EXDATE = "EXDATE";
+	private static final String RRULE = "RRULE";
+	private static final String RRULE_DAILY = "RRULE:FREQ=DAILY;UNTIL";
+	private static final String RRULE_WEEKLY = "RRULE:FREQ=WEEKLY;UNTIL";
+	private static final String RRULE_MONTHLY = "RRULE:FREQ=MONTHLY;UNTIL";
+	private static final String BEGIN_EVENT = "BEGIN:VEVENT";
+	private static final String END_EVENT = "END:VEVENT";
+	private static final String BEGIN_ALARM = "BEGIN:VALARM";
+	private static final String END_ALARM = "END:VALARM";
+	private static final String LAST_MODIFIED = "LAST-MODIFIED";
+	
 
 	private List<CalendarEvent> allEvents;
 	private final M4DateUtils dateUtils = new M4DateUtils();
@@ -162,19 +184,19 @@ public class EventManager {
 		int sp = 0;
 		String key = null;
 		String value = null;
-		if (line.startsWith("DTSTART;") || line.startsWith("DTEND;")
-				|| line.startsWith("EXDATE;")) {
+		if (line.startsWith(DTSTART + SEMICOLON) || line.startsWith(DTEND + SEMICOLON)
+				|| line.startsWith(EXDATE + SEMICOLON)) {
 			sp = line.indexOf(";");
-		} else if (line.startsWith("RRULE:")) {
+		} else if (line.startsWith(RRULE + COLON)) {
 			sp = line.lastIndexOf("=");
 		} else {
-			sp = line.indexOf(":");
+			sp = line.indexOf(COLON);
 		}
 		if (sp > 0) {
 			key = line.substring(0, sp);
 			value = line.substring(sp + 1);
-			if (key.equals("EXDATE")) {
-				if (eventMap.get("EXDATE") == null) {
+			if (key.equals(EXDATE)) {
+				if (eventMap.get(EXDATE) == null) {
 					eventMap.put(key, this.dateUtils.stdDate(value));
 				} else {
 					eventMap.put(
@@ -212,11 +234,11 @@ public class EventManager {
 				doRepeats(evt, events);
 			} else {
 				LocalDateTime sDate = this.dateUtils.formatDate(this.dateUtils
-						.stdDate(evt.get("DTSTART")));
+						.stdDate(evt.get(DTSTART)));
 				LocalDateTime eDate = this.dateUtils.formatDate(this.dateUtils
-						.stdDate(evt.get("DTEND")));
+						.stdDate(evt.get(DTEND)));
 				if (this.dateUtils.isRecent(eDate)) {
-					this.debug("\tAdding single: " + evt.get("SUMMARY") + ":" + evt.get("DTSTART"));
+					this.debug("\tAdding single: " + evt.get(SUMMARY) + COLON + evt.get(DTSTART));
 					addEvent(events, evt, sDate, eDate);
 				} 
 			}
@@ -234,22 +256,19 @@ public class EventManager {
 		RepeatType rType = null;
 		int increment = -1;
 		LocalDateTime untilDate = null;
-		if (evt.get("RRULE:FREQ=DAILY;UNTIL") != null) {
+		if (evt.get(RRULE_DAILY) != null) {
 			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt
-							.get("RRULE:FREQ=DAILY;UNTIL")))));
+					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(RRULE_DAILY)))));
 			rType = RepeatType.DAILY;
 			increment = 1;
-		} else if (evt.get("RRULE:FREQ=WEEKLY;UNTIL") != null) {
+		} else if (evt.get(RRULE_WEEKLY) != null) {
 			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt
-							.get("RRULE:FREQ=WEEKLY;UNTIL")))));
+					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(RRULE_WEEKLY)))));
 			rType = RepeatType.WEEKLY;
 			increment = 7;
-		} else if (evt.get("RRULE:FREQ=MONTHLY;UNTIL") != null) {
+		} else if (evt.get(RRULE_MONTHLY) != null) {
 			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt
-							.get("RRULE:FREQ=MONTHLY;UNTIL")))));
+					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(RRULE_MONTHLY)))));
 			rType = RepeatType.MONTHLY;
 			increment = 1;
 		} else {
@@ -259,16 +278,16 @@ public class EventManager {
 		LocalDateTime sDate = null;
 		LocalDateTime eDate = null;
 
-		if (evt.get("DTSTART") != null) {
+		if (evt.get(DTSTART) != null) {
 			sDate = new LocalDateTime(this.dateUtils.formatDate(this.dateUtils
-					.stdDate(evt.get("DTSTART"))));
+					.stdDate(evt.get(DTSTART))));
 		} else {
 			throw new IllegalStateException("DTSTART is null for event: " + evt);
 		}
-		if (evt.get("DTEND") != null) {
+		if (evt.get(DTEND) != null) {
 			eDate = new LocalDateTime(
 					this.dateUtils.subtractOneMillisecond(this.dateUtils.formatDate(this.dateUtils
-							.stdDate(evt.get("DTEND")))));
+							.stdDate(evt.get(DTEND)))));
 		} else {
 			eDate = this.dateUtils.setEndOf(sDate);
 			this.debug("WARNING - End date missing on: " + evt + " - using: "
@@ -289,7 +308,7 @@ public class EventManager {
 		while (this.dateUtils.isOnBefore(eDate, untilDate)) {
 			if (this.dateUtils.isRecent(eDate)) {
 				if (!excludedDates.contains(sDate)) {
-					this.debug("\tAdding rept'g evt:" + evt.get("SUMMARY") + " on " + sDate.toString());
+					this.debug("\tAdding rept'g evt:" + evt.get(SUMMARY) + " on " + sDate.toString());
 					addEvent(events, evt, sDate, eDate);
 				} else {
 					this.debug("\tExcluded date: " + sDate + " not added");
@@ -307,8 +326,8 @@ public class EventManager {
 	 */
 	private List<LocalDateTime> getExcludedDates(Map<String, String> evt) {
 		List<LocalDateTime> retVal = new ArrayList<LocalDateTime>();
-		if (evt.get("EXDATE") != null) {
-			String[] exDates = evt.get("EXDATE").split(",");
+		if (evt.get(EXDATE) != null) {
+			String[] exDates = evt.get(EXDATE).split(",");
 			for (String xd : exDates) {
 				retVal.add(this.dateUtils.formatDate(xd));
 			}
@@ -319,18 +338,21 @@ public class EventManager {
 	private void addEvent(List<CalendarEvent> events,
 			final Map<String, String> evt, LocalDateTime sDate,
 			LocalDateTime eDate) {
-		events.add(new CalendarEvent(sDate, eDate, evt
-				.get("SUMMARY"), evt.get("LOCATION"), evt
-				.get("DESCRIPTION"), this.getLastUpdated(evt), evt
-				.get("ORGANIZER;CN"), getEventType(evt), this
-				.isEventPrivate(evt)));
+		events.add(new CalendarEvent(sDate, eDate, 
+				evt.get(SUMMARY), 
+				evt.get(LOCATION), 
+				evt.get(DESCRIPTION), 
+				this.getLastUpdated(evt), 
+				evt.get(ORGANIZER), 
+				getEventType(evt), 
+				this.isEventPrivate(evt)));
 	}
 
 	private EventType getEventType(final Map<String, String> evt) {
-		if (evt.get("SUMMARY").toLowerCase().contains("gig")) {
+		if (evt.get(SUMMARY).toLowerCase().contains("gig")) {
 			return EventType.GIG;
-		} else if (evt.get("SUMMARY").toLowerCase().contains("unavailable")
-				|| evt.get("SUMMARY").toLowerCase().contains("not available")) {
+		} else if (evt.get(SUMMARY).toLowerCase().contains("unavailable")
+				|| evt.get(SUMMARY).toLowerCase().contains("not available")) {
 			return EventType.UNAVAILABILITY;
 		} else {
 			return EventType.INFO;
@@ -354,15 +376,15 @@ public class EventManager {
 			br = new BufferedReader(new InputStreamReader(feed));
 			String line;
 			while ((line = br.readLine()) != null) {
-				if (line.startsWith("BEGIN:VEVENT")) {
+				if (line.startsWith(BEGIN_EVENT)) {
 					isEvent = true;
 					eventMap = new HashMap<String, String>();
-				} else if (line.startsWith("END:VEVENT")) {
+				} else if (line.startsWith(END_EVENT)) {
 					eventsList.add(eventMap);
 					isEvent = false;
-				} else if (line.startsWith("BEGIN:VALARM")) {
+				} else if (line.startsWith(BEGIN_ALARM)) {
 					isAlarm = true;
-				} else if (line.startsWith("END:VALARM")) {
+				} else if (line.startsWith(END_ALARM)) {
 					isAlarm = false;
 				} else if (isEvent && !isAlarm) {
 					processLine(line, eventMap);
@@ -381,21 +403,21 @@ public class EventManager {
 
 	private LocalDateTime getLastUpdated(final Map<String, String> evt) {
 		return this.dateUtils.formatDate(this.dateUtils.stdDate(evt
-				.get("LAST-MODIFIED")));
+				.get(LAST_MODIFIED)));
 	}
 
 	private boolean rrulePresent(Map<String, String> evt) {
-		return !(evt.get("RRULE:FREQ=DAILY;UNTIL") == null
-				&& evt.get("RRULE:FREQ=WEEKLY;UNTIL") == null && evt
-					.get("RRULE:FREQ=MONTHLY;UNTIL") == null);
+		return !(evt.get(RRULE_DAILY) == null
+				&& evt.get(RRULE_WEEKLY) == null 
+				&& evt.get(RRULE_MONTHLY) == null);
 	}
 
 	private Boolean isEventPrivate(final Map<String, String> e) {
 		Boolean isPrivate;
-		if (e.get("SUMMARY").toLowerCase().contains("private")
-				|| e.get("SUMMARY").toLowerCase().contains("wedding")
-				|| (e.get("CLASS") != null && e.get("CLASS").toLowerCase()
-						.contains("private"))) {
+		if (e.get(SUMMARY).toLowerCase().contains(PRIVATE)
+				|| e.get(SUMMARY).toLowerCase().contains(WEDDING)
+				|| e.get(LOCATION).toLowerCase().contains(PRIVATE)
+				|| (e.get(CLASS) != null && e.get(CLASS).toLowerCase().contains(PRIVATE))) {
 			isPrivate = true;
 		} else {
 			isPrivate = false;
