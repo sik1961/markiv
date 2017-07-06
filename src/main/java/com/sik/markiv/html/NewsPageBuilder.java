@@ -21,33 +21,26 @@ public class NewsPageBuilder {
 	private static final Logger LOG = Logger.getLogger(NewsPageBuilder.class);
 
 	private static final DateTimeFormatter NEWS_GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
-
 	private static final String NEWLINE = "\n";
-	private static final String PRIVATE = "private";
-	private static final String GIG = "gig";
-	private static final String NEWS_FORMAT = "<li>Our next gig is on <strong>%s</strong> at <strong>%s</strong> - Hope to see you there<br><br>";
-	private static final String HEAD_FMT1 = "<tr><td><center>" + NEWLINE;
-	private static final String HEAD_FMT2 = "<img src=\"images/m4front.jpg\" width=\"50%\" height=\"50%\"><br>\n" + NEWLINE;
-	private static final String HEAD_FMT3 = " <n1>Photo courtesy of " + NEWLINE;
-	private static final String HEAD_FMT4 = "   <a href=\"http://www.elementalcore.com\" target=\"_blank\">Ian Jukes Photography</a>" + NEWLINE;
-	private static final String HEAD_FMT5 = " </td>" + NEWLINE;
-	private static final String HEAD_FMT6 = "<tr><td><center><b2>News</b2></center></td></tr>";
-	private static final String HEAD_FMT7 = "</tr>" + NEWLINE + "<tr><td><center>";
-	private static final String LAST_UPDATE_FORMAT = "<tr><td><center><p>Page last updated at %s</p></center></td></tr>";
-	private static final String TAIL_FMT8 = "</td></tr></table>" + NEWLINE;
-	private static final String HTML_BREAK = "<br>";
+		
+	//private static final String FIXED_NEWS_1 = "<li>Pictures from our gig at The Hillsborough Hotel are on the gallery page - click <a href=\"gallery.htm\">here</a>";
+	private static final String FIXED_NEWS_2 = "<li>To book <b2>Mark IV</b2> eMail us at <a href=\"mailto:markiv.band@gmail.com\">markiv.band@gmail.com</a>";
+	//private static final String FIXED_NEWS_3 = "<li>We're now registered on	<b2><a href=\"http://www.gigz4u.co.uk/\">GIGZ4U</a></b2> - "
+	//		+ "Use it to find our gigs and other live music in the Sheffield area.";
+	private static final String FIXED_NEWS_4 = "<li>Listen to our Demo CD \"Drivin' West\" on SoundCloud By clicking "
+			+ "<a href=\"https://soundcloud.com/markiv-1/sets/drivin-west\" target=\"-blank\">here</a>";
 	
-	private EventManager em;
+	private EventManager eventMgr;
 	private HtmlManager htmlMgr;
 	private M4DateUtils du;
 	
 
-	public NewsPageBuilder(final EventManager em) {
+	public NewsPageBuilder(final EventManager eventMgr) {
 		super();
 
 		this.htmlMgr = new HtmlManager();
 		this.du = new M4DateUtils();
-		this.em = em;
+		this.eventMgr = eventMgr;
 	}
 
 	public String buildNews(final String header, final String trailer)
@@ -67,28 +60,34 @@ public class NewsPageBuilder {
 	}
 
 	public String newsBodyBuilder() {
-		List<CalendarEvent> gigs = em.getByType(EventType.GIG, System.currentTimeMillis(), true);
+		List<CalendarEvent> gigs = eventMgr.getByType(EventType.GIG, System.currentTimeMillis(), true);
 
 		final StringBuilder newsHtml = new StringBuilder();
 		// set up title
-		newsHtml.append(HEAD_FMT1).append(HEAD_FMT2).append(HEAD_FMT3).append(HEAD_FMT4).append(HEAD_FMT5).append(HEAD_FMT6).append(HEAD_FMT7);
+		newsHtml.append(HtmlSnips.NEWS_HEAD_FMT1)
+			.append(HtmlSnips.NEWS_HEAD_FMT2)
+			.append(HtmlSnips.NEWS_HEAD_FMT3)
+			.append(HtmlSnips.NEWS_HEAD_FMT4)
+			.append(HtmlSnips.NEWS_HEAD_FMT5)
+			.append(HtmlSnips.NEWS_HEAD_FMT6)
+			.append(HtmlSnips.NEWS_HEAD_FMT7);
 		
 		CalendarEvent nextPublicGig = this.getNextPublicGig(gigs);
 		if (nextPublicGig != null) {
 			LOG.info("Next gig: " + nextPublicGig.toString());
-			newsHtml.append(String.format(NEWS_FORMAT, 
+			newsHtml.append(String.format(HtmlSnips.NEWS_FORMAT, 
 					NEWS_GIG_DF.print(this.du.adjustForDaylightSaving(nextPublicGig.getStartDate()).toDateTime()), 
-					this.cleanForHtml(nextPublicGig.getLocation())));
+					HtmlSnips.cleanForHtml(nextPublicGig.getLocation())));
 		}
 		
 		for (String newsItem: this.getFixedNewsItems()) {
 			LOG.info("News item: " + newsItem);
-			newsHtml.append(this.cleanForHtml(newsItem + HTML_BREAK + HTML_BREAK + NEWLINE));
+			newsHtml.append(HtmlSnips.cleanForHtml(newsItem + HtmlSnips.HTML_BREAK + HtmlSnips.HTML_BREAK + NEWLINE));
 		}
 				 
-		newsHtml.append(String.format(LAST_UPDATE_FORMAT,	new Date()));
+		newsHtml.append(String.format(HtmlSnips.LAST_UPDATE_FORMAT,	new Date()));
 		
-		newsHtml.append(TAIL_FMT8 + NEWLINE);
+		newsHtml.append(HtmlSnips.NEWS_TAIL_FMT8 + NEWLINE);
 		
 		return newsHtml.toString();
 	}
@@ -100,7 +99,7 @@ public class NewsPageBuilder {
 	private CalendarEvent getNextPublicGig(List<CalendarEvent> gigs) {
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
-				if (isGig(e) && isGigPrivate(e)) {
+				if (eventMgr.isGig(e) && eventMgr.isEventPrivate(e)) {
 					return e;
 				}
 			}
@@ -110,27 +109,8 @@ public class NewsPageBuilder {
 
 	private List<String> getFixedNewsItems() {
 		List<String> fixedNewsItems = new ArrayList<String>();
-		//fixedNewsItems.add("<li>Pictures from our gig at The Hillsborough Hotel are on the gallery page - click <a href=\"gallery.htm\">here</a>");
-		fixedNewsItems.add("<li>To book <b2>Mark IV</b2> eMail us at <a href=\"mailto:markiv.band@gmail.com\">markiv.band@gmail.com</a>");
-		//fixedNewsItems.add("<li>We're now registered on	<b2><a href=\"http://www.gigz4u.co.uk/\">GIGZ4U</a></b2> - Use it to find our gigs and other live music in the Sheffield area.");
-		fixedNewsItems.add("<li>Listen to our Demo CD \"Drivin' West\" on SoundCloud By clicking <a href=\"https://soundcloud.com/markiv-1/sets/drivin-west\" target=\"-blank\">here</a>");
+		fixedNewsItems.add(FIXED_NEWS_2);
+		fixedNewsItems.add(FIXED_NEWS_4);
 		return fixedNewsItems; 
-	}
-	
-	/**
-	 * @param e
-	 * @return
-	 */
-	private boolean isGig(CalendarEvent e) {
-		return e.getSummary().toLowerCase().contains(GIG);
-	}
-
-	private boolean isGigPrivate(CalendarEvent e) {
-		return (e.isEventPrivate() || e.getLocation().toLowerCase().contains(PRIVATE));
-	}
-
-	private String cleanForHtml(final String s) {
-		return s != null ? s.replace("\\n", ", ").replace("\\", "")
-				.replace("GBP", "&pound;") : null;
 	}
 }

@@ -24,35 +24,29 @@ public class GigsAvailabilityBuilder {
 	private static final Logger LOG = Logger
 			.getLogger(GigsAvailabilityBuilder.class);
 
-	private static final DateTimeFormatter GIG_DF = DateTimeFormat
-			.forPattern("EEE d MMMM ha");
-	private static final DateTimeFormatter AVL_DF = DateTimeFormat.forPattern(
-			"EEE d MMM yyyy").withLocale(Locale.UK);
-	private static final String GIG1_FORMAT = "<tr><td align=\"right\"><strong>%s - </strong></td><td><strong>%s</strong></td></tr>";
-	private static final String GIG2_FORMAT = "<tr><td align=\"right\"></td><td>%s</td></tr>";
-	private static final String HEAD_FMT1 = "<center><b2>Gigs</b2>";
-	private static final String HEAD_FMT2 = "<table align=\"center\" border=\"0\">\n";
-	private static final String HEAD_FMT3 = " <tr>\n";
-	private static final String HEAD_FMT4 = "  <td align=\"right\"><n1>Date/Time - </n1></td>\n";
-	private static final String HEAD_FMT5 = "  <td align=\"left\"><n1>Venue(Details)</n1></td><br>\n";
-	private static final String HEAD_FMT6 = " </tr>\n";
-	private static final String NEWLINE = "\n";
-	private static final String RED = "#FF8888";
-	private static final String AMBER = "#FFFF88";
-	private static final String GREEN = "#88FF88";
+	private static final DateTimeFormatter GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
+	private static final DateTimeFormatter AVL_DF = DateTimeFormat.forPattern("EEE d MMM yyyy").withLocale(Locale.UK);
+
+	private static final String GIG = "gig";
 	private static final int GIG_DAYS_AHEAD = 183;
 	private static final int AVL_DAYS_AHEAD = 400;
-	private EventManager em;
+	private static final String PRIVATE_PARTY = "Private Party";
+	private static final String SUN = "Sun";
+	private static final String AVAILABLE = "Available";
+	private static final String EMPTY_STRING = "";
+	private static final String NEWLINE = "\n";
+	private static final String RECENT_ASTER = " *";
+
+	private EventManager eventMgr;
 	private HtmlManager htmlMgr;
 	private M4DateUtils du;
-	
 
-	public GigsAvailabilityBuilder(final EventManager em) {
+	public GigsAvailabilityBuilder(final EventManager eventMgr) {
 		super();
 
 		this.htmlMgr = new HtmlManager();
 		this.du = new M4DateUtils();
-		this.em = em;
+		this.eventMgr = eventMgr;
 	}
 
 	public String buildGigs(final String header, final String trailer)
@@ -63,7 +57,9 @@ public class GigsAvailabilityBuilder {
 		if (header != null) {
 			out.append(this.htmlMgr.readFileAsString(header));
 		}
+		
 		out.append(this.gigsBodyBuilder());
+		
 		if (trailer != null) {
 			out.append(this.htmlMgr.readFileAsString(trailer));
 		}
@@ -73,12 +69,17 @@ public class GigsAvailabilityBuilder {
 
 	public String gigsBodyBuilder() {
 
-		List<CalendarEvent> gigs = em.getByType(EventType.GIG,
+		List<CalendarEvent> gigs = eventMgr.getByType(EventType.GIG,
 				System.currentTimeMillis(), true);
 
 		final StringBuilder gigsHtml = new StringBuilder();
 		// set up title
-		gigsHtml.append(HEAD_FMT1).append(HEAD_FMT2).append(HEAD_FMT3).append(HEAD_FMT4).append(HEAD_FMT5).append(HEAD_FMT6);
+		gigsHtml.append(HtmlSnips.GIG_HEAD_FMT1)
+			.append(HtmlSnips.GIG_HEAD_FMT2)
+			.append(HtmlSnips.GIG_HEAD_FMT3)
+			.append(HtmlSnips.GIG_HEAD_FMT4)
+			.append(HtmlSnips.GIG_HEAD_FMT5)
+			.append(HtmlSnips.GIG_HEAD_FMT6);
 		StringBuilder location = null;
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
@@ -88,44 +89,38 @@ public class GigsAvailabilityBuilder {
 						.isBefore(this.getDateHence(GIG_DAYS_AHEAD))) {
 					if (isGig(e)) {
 						if (e.isEventPrivate()) {
-							location.append("Private Party");
+							location.append(PRIVATE_PARTY);
 						} else {
 							if (e.getLocation() != null) {
-								location.append(this.cleanForHtml(e
-										.getLocation()));
+								location.append(HtmlSnips.cleanForHtml(e.getLocation()));
 							} else {
-								location.append(this.cleanForHtml(e
-										.getSummary()));
+								location.append(HtmlSnips.cleanForHtml(e.getSummary()));
 							}
 							if (!e.getNotes().isEmpty()) {
-								location.append("<br>(");
-								location.append(this.cleanForHtml(e.getNotes()));
-								location.append(")");
+								location.append(HtmlSnips.HTML_BREAK + HtmlSnips.OPN_BKT);
+								location.append(HtmlSnips.cleanForHtml(e.getNotes()));
+								location.append(HtmlSnips.CLS_BKT);
 							}
 						}
 						if (location != null && location.length() > 0) {
-							gigsHtml.append(String.format(GIG1_FORMAT,
+							gigsHtml.append(String.format(HtmlSnips.GIG1_FORMAT,
 											GIG_DF.print(this.du.adjustForDaylightSaving(e.getStartDate()).toDateTime()), 
 											getLocName(location)));
 							gigsHtml.append(NEWLINE);
-							gigsHtml.append(String.format(GIG2_FORMAT,
+							gigsHtml.append(String.format(HtmlSnips.GIG2_FORMAT,
 											getLocAddr(location)));
 							gigsHtml.append(NEWLINE);
 						} else {
-							LOG.info("Location missing for event: " + e);
+							LOG.warn("Location missing for event: " + e);
 						}
 					}
 				}
 			}
 		} else {
-			gigsHtml.append(String.format("<tr><td colspan=\"2\">%s</td></tr>",
-					"No Gigs"));
-			gigsHtml.append(NEWLINE);
+			gigsHtml.append(HtmlSnips.NO_GIGS + NEWLINE);
 		}
-		gigsHtml.append("</tr></table>" + NEWLINE);
-		gigsHtml.append(String.format(
-				"<center><br><p>Page last updated at %s</p></center>",
-				new Date()));
+		gigsHtml.append(HtmlSnips.TR_END + HtmlSnips.TABLE_END + NEWLINE);
+		gigsHtml.append(String.format(HtmlSnips.LAST_UPD_FMT, new Date()));
 		LOG.info(gigs.size() + " Gig(s) found.");
 		return gigsHtml.toString();
 	}
@@ -155,7 +150,7 @@ public class GigsAvailabilityBuilder {
 	 * @return
 	 */
 	private boolean isGig(CalendarEvent e) {
-		return e.getSummary().toLowerCase().contains("gig");
+		return e.getSummary().toLowerCase().contains(GIG);
 	}
 
 	public String buildAvail(final String header, final String trailer)
@@ -177,20 +172,19 @@ public class GigsAvailabilityBuilder {
 
 		final StringBuilder availHtml = new StringBuilder();
 
-		final UpdateRecord ur = this.em.getLatestUpdate();
+		final UpdateRecord ur = this.eventMgr.getLatestUpdate();
 
-		availHtml.append("<table width=\"1000\">");
-		availHtml.append("<tr><td>\n");
-		availHtml
-				.append("<b1>Mark IV Availability</b1>&nbsp;<n1>* Recently updated</n1>");
-		availHtml.append("</td></tr>");
-		availHtml.append("<tr><td>\n");
-		availHtml.append(String.format(
-				"<n1>Calendar Last Updated %s - Page Updated %s</n1>\n", ur
-						.getLastUpdated().toLocalDate(), new Date()));
-		availHtml.append("</td></tr>\n");
-		availHtml.append("<tr><td>\n");
-		availHtml.append("<n1>\n");
+		availHtml.append(HtmlSnips.TABLE);
+		availHtml.append(HtmlSnips.TR + HtmlSnips.TD + NEWLINE);
+		availHtml.append(HtmlSnips.AVAIL_HEAD);
+		availHtml.append(HtmlSnips.TD_END + HtmlSnips.TR_END + NEWLINE);
+		availHtml.append(HtmlSnips.TR + HtmlSnips.TD + NEWLINE);
+		availHtml.append(String.format(HtmlSnips.N1 + HtmlSnips.CAL_LAST_UPD_FMT + HtmlSnips.N1_END + NEWLINE, ur
+						.getLastUpdated().toLocalDate()));
+		availHtml.append(String.format(HtmlSnips.LAST_UPD_FMT, new Date()));
+		availHtml.append(HtmlSnips.TD_END + HtmlSnips.TR_END + NEWLINE);
+		availHtml.append(HtmlSnips.TR + HtmlSnips.TD + NEWLINE);
+		availHtml.append(HtmlSnips.N1 + NEWLINE);
 
 		M4Date rolling = new M4Date();
 
@@ -201,13 +195,13 @@ public class GigsAvailabilityBuilder {
 
 			// LOG.info("Checking: " + rolling.getStartTime().toDate());
 
-			final List<CalendarEvent> eventsOnDate = this.em
+			final List<CalendarEvent> eventsOnDate = this.eventMgr
 					.getEventsOn(rolling);
-			remarks = new StringBuilder("");
+			remarks = new StringBuilder();
 			dateClear = (eventsOnDate.size() == 0);
 
 			if (dateClear) {
-				availHtml.append(String.format("<font color=\"%s\">", GREEN));
+				availHtml.append(String.format(HtmlSnips.FONT_COLOR_FMT, HtmlSnips.GREEN));
 				availTotal++;
 			} else {
 				this.debug(rolling.getStartTime().toLocalDate() + ": "
@@ -221,39 +215,40 @@ public class GigsAvailabilityBuilder {
 						unavailable = true;
 					}
 					if (!remarks.toString().isEmpty()) {
-						remarks.append("/");
+						remarks.append(HtmlSnips.SLASH);
 					}
 					remarks.append(e.getSummary());
 					if (e.getLocation() != null && !e.getLocation().isEmpty()
 							&& !e.isEventPrivate()) {
-						remarks.append("(");
+						remarks.append(HtmlSnips.OPN_BKT);
 						remarks.append(e.getLocation());
-						remarks.append(")");
+						remarks.append(HtmlSnips.CLS_BKT);
 					}
 					if (this.isRecentlyUpdated(e.getLastUpdated())) {
-						remarks.append(" *");
+						remarks.append(RECENT_ASTER);
 					}
 				}
 				if (unavailable) {
-					availHtml.append(String.format("<font color=\"%s\">", RED));
+					availHtml.append(String.format(HtmlSnips.FONT_COLOR_FMT, HtmlSnips.RED));
 				} else {
 					availHtml.append(String
-							.format("<font color=\"%s\">", AMBER));
+							.format(HtmlSnips.FONT_COLOR_FMT, HtmlSnips.AMBER));
 				}
 
 			}
-			availHtml.append(String.format("<li>%s - %s %s", AVL_DF
-					.print(rolling.getStartTime()), dateClear ? "Available"
-					: "", remarks.toString()));
-			availHtml.append("</font>\n");
+			availHtml.append(String.format(HtmlSnips.AVAIL_FMT, 
+					AVL_DF.print(rolling.getStartTime()), 
+					dateClear ? AVAILABLE:EMPTY_STRING, 
+					remarks.toString()));
+			availHtml.append(HtmlSnips.FONT_END + NEWLINE);
 
-			if (AVL_DF.print(rolling.getStartTime()).startsWith("Sun")) {
-				availHtml.append("<hr>\n");
+			if (AVL_DF.print(rolling.getStartTime()).startsWith(SUN)) {
+				availHtml.append(HtmlSnips.HTML_HR + NEWLINE);
 			}
 			rolling.rollDate(1);
 		}
-		availHtml.append("</td></tr>\n");
-		availHtml.append("</table>");
+		availHtml.append(HtmlSnips.TD_END + HtmlSnips.TR_END + NEWLINE);
+		availHtml.append(HtmlSnips.TABLE_END);
 		LOG.info("Availability: " + availTotal + "/" + AVL_DAYS_AHEAD
 				+ " days available.");
 		return availHtml.toString();
@@ -263,10 +258,7 @@ public class GigsAvailabilityBuilder {
 		return new LocalDateTime().plusDays(daysAhead);
 	}
 
-	private String cleanForHtml(final String s) {
-		return s != null ? s.replace("\\n", ", ").replace("\\", "")
-				.replace("GBP", "&pound;") : null;
-	}
+	
 
 	private Boolean isRecentlyUpdated(final LocalDateTime modDate) {
 		return modDate.plusDays(7).isAfter(
