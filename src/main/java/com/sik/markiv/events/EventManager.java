@@ -16,7 +16,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.joda.time.LocalDateTime;
-//import org.springframework.beans.factory.annotation.Autowired;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
@@ -107,19 +106,7 @@ public class EventManager {
 		return filteredEvents;
 	}
 
-	private boolean isDateInEvent(final M4Date date, final CalendarEvent event) {
-		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
-		return (this.dateUtils.isOnAfter(date.getStartTime(),
-				event.getStartDate()) && this.dateUtils.isOnBefore(
-				date.getEndTime(), event.getEndDate()));
-	}
-
-	private boolean isEventInDate(final M4Date date, final CalendarEvent event) {
-		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
-		return (this.dateUtils.isOnAfter(event.getStartDate(),
-				date.getStartTime()) && this.dateUtils.isOnBefore(
-				event.getEndDate(), date.getEndTime()));
-	}
+	
 
 	/**
 	 * Get events by type
@@ -133,10 +120,9 @@ public class EventManager {
 	 */
 	public List<CalendarEvent> getByType(final EventType eventType,
 			final long startTime, final boolean suppressDupes) {
-		final LocalDateTime fromDate = new LocalDateTime(startTime);
 		final List<CalendarEvent> filteredEvents = new ArrayList<CalendarEvent>();
 		for (final CalendarEvent e : this.allEvents) {
-			if (e.getStartDate().isAfter(fromDate)) {
+			if (e.getStartDate().isAfter(new LocalDateTime(startTime))) {
 				if (e.getEventType() == eventType) {
 					if (!suppressDupes || !eventExists(e, filteredEvents)) {
 						filteredEvents.add(e);
@@ -147,6 +133,40 @@ public class EventManager {
 		return filteredEvents;
 	}
 
+	/**
+	 * Get latest update
+	 * 
+	 * @return
+	 */
+	public UpdateRecord getLatestUpdate() {
+		final UpdateRecord ur = new UpdateRecord();
+		for (final CalendarEvent e : this.allEvents) {
+			if (e.getLastUpdated().isAfter(ur.getLastUpdated())) {
+				ur.setLastUpdated(e.getLastUpdated());
+				ur.setEvent(e);
+			}
+		}
+		return ur;
+	}
+
+	/**
+	 * Is the event a gig?
+	 * @param e
+	 * @return
+	 */
+	public boolean isGig(CalendarEvent e) {
+		return e.getSummary().toLowerCase().contains(GIG);
+	}
+
+	/**
+	 * Is the event private?
+	 * @param e
+	 * @return
+	 */
+	public boolean isEventPrivate(CalendarEvent e) {
+		return (e.isEventPrivate() || e.getLocation().toLowerCase().contains(PRIVATE));
+	}
+	
 	/**
 	 * Check event exists with same Start Date (YYYYMMDD) & Type
 	 * 
@@ -204,10 +224,7 @@ public class EventManager {
 				if (eventMap.get(EXDATE) == null) {
 					eventMap.put(key, this.dateUtils.stdDate(value));
 				} else {
-					eventMap.put(
-							key,
-							eventMap.get(key) + COMMA
-									+ this.dateUtils.stdDate(value));
+					eventMap.put(key, eventMap.get(key) + COMMA + this.dateUtils.stdDate(value));
 				}
 			} else {
 				eventMap.put(key, value);
@@ -295,12 +312,12 @@ public class EventManager {
 							.stdDate(evt.get(DTEND)))));
 		} else {
 			eDate = this.dateUtils.setEndOf(sDate);
-			this.debug("WARNING - End date missing on: " + evt + " - using: "
+			LOG.warn("WARNING - End date missing on: " + evt + " - using: "
 					+ eDate.toDateTime());
 		}
 
 		if (this.dateUtils.isOnBefore(untilDate, eDate)) {
-			this.debug("WARNING - Calendar anomoly! untilDate earlier that endDate - setting untilDate to endDate");
+			LOG.warn("WARNING - Calendar anomoly! untilDate earlier that endDate - setting untilDate to endDate");
 			untilDate = eDate;
 		}
 
@@ -433,23 +450,21 @@ public class EventManager {
 		}
 		return isPrivate;
 	}
-
-	/**
-	 * Get latest update
-	 * 
-	 * @return
-	 */
-	public UpdateRecord getLatestUpdate() {
-		final UpdateRecord ur = new UpdateRecord();
-		for (final CalendarEvent e : this.allEvents) {
-			if (e.getLastUpdated().isAfter(ur.getLastUpdated())) {
-				ur.setLastUpdated(e.getLastUpdated());
-				ur.setEvent(e);
-			}
-		}
-		return ur;
+	
+	private boolean isDateInEvent(final M4Date date, final CalendarEvent event) {
+		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
+		return (this.dateUtils.isOnAfter(date.getStartTime(),
+				event.getStartDate()) && this.dateUtils.isOnBefore(
+				date.getEndTime(), event.getEndDate()));
 	}
 
+	private boolean isEventInDate(final M4Date date, final CalendarEvent event) {
+		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
+		return (this.dateUtils.isOnAfter(event.getStartDate(),
+				date.getStartTime()) && this.dateUtils.isOnBefore(
+				event.getEndDate(), date.getEndTime()));
+	}
+	
 	private void debug(String msg) {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug(msg);
