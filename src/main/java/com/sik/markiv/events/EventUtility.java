@@ -22,9 +22,15 @@ import com.sik.markiv.utils.M4DateUtils;
 
 public class EventUtility {
 
-	private static final Logger LOG = Logger.getLogger(EventManager.class);
+	private static final Logger LOG = Logger.getLogger(EventUtility.class);
 	private final M4DateUtils dateUtils = new M4DateUtils();
 	
+	/**
+	 * Is the Date in the CalendarEvent?
+	 * @param date
+	 * @param event
+	 * @return
+	 */
 	protected boolean isDateInEvent(final M4Date date, final CalendarEvent event) {
 		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
 		return (this.dateUtils.isOnAfter(date.getStartTime(),
@@ -32,6 +38,12 @@ public class EventUtility {
 				date.getEndTime(), event.getEndDate()));
 	}
 
+	/**
+	 * Is the Event in the Date?
+	 * @param date
+	 * @param event
+	 * @return
+	 */
 	protected boolean isEventInDate(final M4Date date, final CalendarEvent event) {
 		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
 		return (this.dateUtils.isOnAfter(event.getStartDate(),
@@ -39,17 +51,32 @@ public class EventUtility {
 				event.getEndDate(), date.getEndTime()));
 	}
 	
+	/**
+	 * Get last updated time?
+	 * @param evt
+	 * @return
+	 */
 	protected LocalDateTime getLastUpdated(final Map<String, String> evt) {
 		return this.dateUtils.formatDate(this.dateUtils.stdDate(evt
 				.get(CalFields.LAST_MODIFIED)));
 	}
 
+	/**
+	 * Is there a Repeat Rule present?
+	 * @param evt
+	 * @return
+	 */
 	protected boolean rrulePresent(Map<String, String> evt) {
 		return !(evt.get(CalFields.RRULE_DAILY) == null
 				&& evt.get(CalFields.RRULE_WEEKLY) == null 
 				&& evt.get(CalFields.RRULE_MONTHLY) == null);
 	}
 
+	/**
+	 * Is the event private?
+	 * @param e
+	 * @return
+	 */
 	protected Boolean isEventPrivate(final Map<String, String> e) {
 		Boolean isPrivate;
 		if (e.get(CalFields.SUMMARY).toLowerCase().contains(M4Fields.PRIVATE)
@@ -118,6 +145,11 @@ public class EventUtility {
 		}
 	}
 
+	/**
+	 * Process calendar line
+	 * @param line
+	 * @param eventMap
+	 */
 	protected void processLine(final String line,
 			final Map<String, String> eventMap) {
 		int sp = 0;
@@ -161,6 +193,13 @@ public class EventUtility {
 		return retVal;
 	}
 	
+	/**
+	 * Add CalendarEvent to the list
+	 * @param events
+	 * @param evt
+	 * @param sDate
+	 * @param eDate
+	 */
 	protected void addEvent(List<CalendarEvent> events,
 			final Map<String, String> evt, 
 			LocalDateTime sDate,
@@ -178,6 +217,11 @@ public class EventUtility {
 				.validate());
 	}
 
+	/**
+	 * Get event type
+	 * @param evt
+	 * @return
+	 */
 	protected EventType getEventType(final Map<String, String> evt) {
 		if (evt.get(CalFields.SUMMARY).toLowerCase().contains(M4Fields.GIG)) {
 			return EventType.GIG;

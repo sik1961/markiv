@@ -21,8 +21,7 @@ import com.sik.markiv.events.EventManager;
 import com.sik.markiv.utils.M4DateUtils;
 
 public class GigsAvailabilityBuilder {
-	private static final Logger LOG = Logger
-			.getLogger(GigsAvailabilityBuilder.class);
+	private static final Logger LOG = Logger	.getLogger(GigsAvailabilityBuilder.class);
 
 	private static final DateTimeFormatter GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
 	private static final DateTimeFormatter AVL_DF = DateTimeFormat.forPattern("EEE d MMM yyyy").withLocale(Locale.UK);
