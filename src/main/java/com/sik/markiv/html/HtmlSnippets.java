@@ -1,6 +1,6 @@
 package com.sik.markiv.html;
 
-public class HtmlSnips {
+public class HtmlSnippets {
 	public static final String HTML_BREAK = "<br>";
 	public static final String HTML_HR = "<hr>";
 	public static final String OPN_BKT = "(";
@@ -57,6 +57,6 @@ public class HtmlSnips {
 	
 	public static String cleanForHtml(final String s) {
 		return s != null ? s.replace(DOUBLE_BACKSLASH_N, COMMA).replace(DOUBLE_BACKSLASH, EMPTY_STRING)
-				.replace(GBP, HtmlSnips.POUND) : null;
+				.replace(GBP, HtmlSnippets.POUND) : null;
 	}
 }

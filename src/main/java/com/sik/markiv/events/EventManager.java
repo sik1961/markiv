@@ -1,11 +1,5 @@
 package com.sik.markiv.events;
-/**
- * @author sik
- */
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -20,50 +14,28 @@ import org.joda.time.LocalDateTime;
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
 import com.sik.markiv.api.M4Date;
+import com.sik.markiv.api.M4Fields;
 import com.sik.markiv.api.RepeatType;
 import com.sik.markiv.api.UpdateRecord;
 import com.sik.markiv.exception.MarkIVException;
+import com.sik.markiv.google.calendar.CalFields;
 import com.sik.markiv.utils.M4DateUtils;
 
 public class EventManager {
 	private static final Logger LOG = Logger.getLogger(EventManager.class);
-	private static final String PRIVATE = "private";
-	private static final String WEDDING = "wedding";
-	private static final String SUMMARY = "SUMMARY";
-	private static final String LOCATION = "LOCATION";
-	private static final String CLASS = "CLASS";
-	private static final String ORGANIZER = "ORGANIZER;CN";
-	private static final String DESCRIPTION = "DESCRIPTION";
-	private static final String SEMICOLON = ";";
-	private static final String COLON = ":";
-	private static final String COMMA = ",";
-	private static final String EQUALS= "=";
-	private static final String DTSTART = "DTSTART";
-	private static final String DTEND = "DTEND";
-	private static final String EXDATE = "EXDATE";
-	private static final String RRULE = "RRULE";
-	private static final String RRULE_DAILY = "RRULE:FREQ=DAILY;UNTIL";
-	private static final String RRULE_WEEKLY = "RRULE:FREQ=WEEKLY;UNTIL";
-	private static final String RRULE_MONTHLY = "RRULE:FREQ=MONTHLY;UNTIL";
-	private static final String BEGIN_EVENT = "BEGIN:VEVENT";
-	private static final String END_EVENT = "END:VEVENT";
-	private static final String BEGIN_ALARM = "BEGIN:VALARM";
-	private static final String END_ALARM = "END:VALARM";
-	private static final String LAST_MODIFIED = "LAST-MODIFIED";
-	private static final String GIG = "gig";
-	private static final String UNAVAILABLE = "unavailable";
-	private static final String NOT_AVAILABLE = "not available";
+
 	
 
 	private List<CalendarEvent> allEvents;
 	private final M4DateUtils dateUtils = new M4DateUtils();
+	private final EventUtility eu = new EventUtility();
 
 	public EventManager(InputStream feed) {
 		this.updateFromFeed(feed);
 	}
 
 	public void updateFromFeed(InputStream feed) {
-		this.allEvents = this.buildEvents(this.buildMapFromCalendarFeed(feed));
+		this.allEvents = this.buildEvents(eu.buildMapFromCalendarFeed(feed));
 	}
 	
 	public List<CalendarEvent> getAllEvents() {
@@ -98,8 +70,8 @@ public class EventManager {
 		for (final CalendarEvent event : this.allEvents) {
 			this.debug(">>>>> event=" + event);
 			
-			if (isDateInEvent(dateTime, event)
-					|| isEventInDate(dateTime, event)) {
+			if (eu.isDateInEvent(dateTime, event)
+					|| eu.isEventInDate(dateTime, event)) {
 				filteredEvents.add(event);
 			}
 		}
@@ -124,7 +96,7 @@ public class EventManager {
 		for (final CalendarEvent e : this.allEvents) {
 			if (e.getStartDate().isAfter(new LocalDateTime(startTime))) {
 				if (e.getEventType() == eventType) {
-					if (!suppressDupes || !eventExists(e, filteredEvents)) {
+					if (!suppressDupes || !eu.eventExists(e, filteredEvents)) {
 						filteredEvents.add(e);
 					}
 				}
@@ -149,88 +121,7 @@ public class EventManager {
 		return ur;
 	}
 
-	/**
-	 * Is the event a gig?
-	 * @param e
-	 * @return
-	 */
-	public boolean isGig(CalendarEvent e) {
-		return e.getSummary().toLowerCase().contains(GIG);
-	}
-
-	/**
-	 * Is the event private?
-	 * @param e
-	 * @return
-	 */
-	public boolean isEventPrivate(CalendarEvent e) {
-		return (e.isEventPrivate() || e.getLocation().toLowerCase().contains(PRIVATE));
-	}
 	
-	/**
-	 * Check event exists with same Start Date (YYYYMMDD) & Type
-	 * 
-	 * @param e
-	 * @param filteredEvents
-	 * @return
-	 */
-	private boolean eventExists(CalendarEvent e,
-			List<CalendarEvent> filteredEvents) {
-		for (CalendarEvent fe : filteredEvents) {
-			if (fe.getEventType() == e.getEventType() && startDatesEqual(e, fe)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * @param e
-	 * @param fe
-	 * @return
-	 */
-	private boolean startDatesEqual(CalendarEvent e, CalendarEvent fe) {
-		if (e.getStartDate().getYearOfCentury() != fe.getStartDate()
-				.getYearOfCentury()) {
-			return false;
-		} else if (e.getStartDate().getMonthOfYear() != fe.getStartDate()
-				.getMonthOfYear()) {
-			return false;
-		} else if (e.getStartDate().getDayOfMonth() != fe.getStartDate()
-				.getDayOfMonth()) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-
-	private void processLine(final String line,
-			final Map<String, String> eventMap) {
-		int sp = 0;
-		String key = null;
-		String value = null;
-		if (line.startsWith(DTSTART + SEMICOLON) || line.startsWith(DTEND + SEMICOLON)
-				|| line.startsWith(EXDATE + SEMICOLON)) {
-			sp = line.indexOf(SEMICOLON);
-		} else if (line.startsWith(RRULE + COLON)) {
-			sp = line.lastIndexOf(EQUALS);
-		} else {
-			sp = line.indexOf(COLON);
-		}
-		if (sp > 0) {
-			key = line.substring(0, sp);
-			value = line.substring(sp + 1);
-			if (key.equals(EXDATE)) {
-				if (eventMap.get(EXDATE) == null) {
-					eventMap.put(key, this.dateUtils.stdDate(value));
-				} else {
-					eventMap.put(key, eventMap.get(key) + COMMA + this.dateUtils.stdDate(value));
-				}
-			} else {
-				eventMap.put(key, value);
-			}
-		}
-	}
 
 	private List<CalendarEvent> buildEvents(
 			final List<HashMap<String, String>> rawEventsMapList) {
@@ -252,16 +143,16 @@ public class EventManager {
 		while (itr.hasNext()) {
 			final Map<String, String> evt = itr.next();
 
-			if (rrulePresent(evt)) {
+			if (eu.rrulePresent(evt)) {
 				doRepeats(evt, events);
 			} else {
 				LocalDateTime sDate = this.dateUtils.formatDate(this.dateUtils
-						.stdDate(evt.get(DTSTART)));
+						.stdDate(evt.get(CalFields.DTSTART)));
 				LocalDateTime eDate = this.dateUtils.formatDate(this.dateUtils
-						.stdDate(evt.get(DTEND)));
+						.stdDate(evt.get(CalFields.DTEND)));
 				if (this.dateUtils.isRecent(eDate)) {
-					this.debug("\tAdding single: " + evt.get(SUMMARY) + COLON + evt.get(DTSTART));
-					addEvent(events, evt, sDate, eDate);
+					this.debug("\tAdding single: " + evt.get(CalFields.SUMMARY) + M4Fields.COLON + evt.get(CalFields.DTSTART));
+					eu.addEvent(events, evt, sDate, eDate);
 				} 
 			}
 		}
@@ -278,19 +169,19 @@ public class EventManager {
 		RepeatType rType = null;
 		int increment = -1;
 		LocalDateTime untilDate = null;
-		if (evt.get(RRULE_DAILY) != null) {
+		if (evt.get(CalFields.RRULE_DAILY) != null) {
 			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(RRULE_DAILY)))));
+					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_DAILY)))));
 			rType = RepeatType.DAILY;
 			increment = 1;
-		} else if (evt.get(RRULE_WEEKLY) != null) {
+		} else if (evt.get(CalFields.RRULE_WEEKLY) != null) {
 			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(RRULE_WEEKLY)))));
+					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_WEEKLY)))));
 			rType = RepeatType.WEEKLY;
 			increment = 7;
-		} else if (evt.get(RRULE_MONTHLY) != null) {
+		} else if (evt.get(CalFields.RRULE_MONTHLY) != null) {
 			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(RRULE_MONTHLY)))));
+					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_MONTHLY)))));
 			rType = RepeatType.MONTHLY;
 			increment = 1;
 		} else {
@@ -300,16 +191,16 @@ public class EventManager {
 		LocalDateTime sDate = null;
 		LocalDateTime eDate = null;
 
-		if (evt.get(DTSTART) != null) {
+		if (evt.get(CalFields.DTSTART) != null) {
 			sDate = new LocalDateTime(this.dateUtils.formatDate(this.dateUtils
-					.stdDate(evt.get(DTSTART))));
+					.stdDate(evt.get(CalFields.DTSTART))));
 		} else {
 			throw new MarkIVException("DTSTART is null for event: " + evt);
 		}
-		if (evt.get(DTEND) != null) {
+		if (evt.get(CalFields.DTEND) != null) {
 			eDate = new LocalDateTime(
 					this.dateUtils.subtractOneMillisecond(this.dateUtils.formatDate(this.dateUtils
-							.stdDate(evt.get(DTEND)))));
+							.stdDate(evt.get(CalFields.DTEND)))));
 		} else {
 			eDate = this.dateUtils.setEndOf(sDate);
 			LOG.warn("WARNING - End date missing on: " + evt + " - using: "
@@ -325,13 +216,13 @@ public class EventManager {
 				+ " - Increment: " + increment + " - Until: "
 				+ untilDate.toDateTime());
 		this.debug("Event: " + evt);
-		List<LocalDateTime> excludedDates = getExcludedDates(evt);
+		List<LocalDateTime> excludedDates = eu.getExcludedDates(evt);
 
 		while (this.dateUtils.isOnBefore(eDate, untilDate)) {
 			if (this.dateUtils.isRecent(eDate)) {
 				if (!excludedDates.contains(sDate)) {
-					this.debug("\tAdding rept'g evt:" + evt.get(SUMMARY) + " on " + sDate.toString());
-					addEvent(events, evt, sDate, eDate);
+					this.debug("\tAdding rept'g evt:" + evt.get(CalFields.SUMMARY) + " on " + sDate.toString());
+					eu.addEvent(events, evt, sDate, eDate);
 				} else {
 					this.debug("\tExcluded date: " + sDate + " - not added because it's in " + excludedDates);
 				}
@@ -339,130 +230,6 @@ public class EventManager {
 			sDate = this.dateUtils.dateRoll(sDate, rType, increment);
 			eDate = this.dateUtils.dateRoll(eDate, rType, increment);
 		}
-	}
-
-	/**
-	 * @param evt
-	 * @return
-	 */
-	private List<LocalDateTime> getExcludedDates(Map<String, String> evt) {
-		List<LocalDateTime> retVal = new ArrayList<LocalDateTime>();
-		if (evt.get(EXDATE) != null) {
-			String[] exDates = evt.get(EXDATE).split(COMMA);
-			for (String xd : exDates) {
-				retVal.add(this.dateUtils.formatDate(xd));
-			}
-		}
-		return retVal;
-	}
-	
-	private void addEvent(List<CalendarEvent> events,
-			final Map<String, String> evt, 
-			LocalDateTime sDate,
-			LocalDateTime eDate) {
-		events.add(new CalendarEvent()
-				.withStartDate(sDate)
-				.withEndDate(eDate)
-				.withSummary(	evt.get(SUMMARY))
-				.withLocation(evt.get(LOCATION))
-				.withNotes(evt.get(DESCRIPTION))
-				.withLastUpdated(this.getLastUpdated(evt))
-				.withLastUpdatedBy(evt.get(ORGANIZER))
-				.withEventType(getEventType(evt))
-				.withEventPrivate(this.isEventPrivate(evt))
-				.validate());
-	}
-
-	private EventType getEventType(final Map<String, String> evt) {
-		if (evt.get(SUMMARY).toLowerCase().contains(GIG)) {
-			return EventType.GIG;
-		} else if (evt.get(SUMMARY).toLowerCase().contains(UNAVAILABLE)
-				|| evt.get(SUMMARY).toLowerCase().contains(NOT_AVAILABLE)) {
-			return EventType.UNAVAILABILITY;
-		} else {
-			return EventType.INFO;
-		}
-	}
-
-	/**
-	 * Builds a List of HashMap 'events' from the google calendar feed
-	 * @return
-	 */
-	private List<HashMap<String, String>> buildMapFromCalendarFeed(
-			final InputStream feed) {
-		boolean isEvent = false;
-		boolean isAlarm = false;
-		BufferedReader br;
-		HashMap<String, String> eventMap = null;
-		final List<HashMap<String, String>> eventsList = new ArrayList<HashMap<String, String>>();
-
-		int lineCount = 0;
-
-		try {
-			br = new BufferedReader(new InputStreamReader(feed));
-			String line;
-			while ((line = br.readLine()) != null) {
-				if (line.startsWith(BEGIN_EVENT)) {
-					isEvent = true;
-					eventMap = new HashMap<String, String>();
-				} else if (line.startsWith(END_EVENT)) {
-					eventsList.add(eventMap);
-					isEvent = false;
-				} else if (line.startsWith(BEGIN_ALARM)) {
-					isAlarm = true;
-				} else if (line.startsWith(END_ALARM)) {
-					isAlarm = false;
-				} else if (isEvent && !isAlarm) {
-					processLine(line, eventMap);
-				}
-				lineCount++;
-			}
-			br.close();
-		} catch (final IOException e2) {
-			throw new MarkIVException(e2.getMessage());
-		}
-
-		LOG.info(lineCount + " lines in calendar extract - "
-				+ eventsList.size() + " raw events found");
-		return eventsList;
-	}
-
-	private LocalDateTime getLastUpdated(final Map<String, String> evt) {
-		return this.dateUtils.formatDate(this.dateUtils.stdDate(evt
-				.get(LAST_MODIFIED)));
-	}
-
-	private boolean rrulePresent(Map<String, String> evt) {
-		return !(evt.get(RRULE_DAILY) == null
-				&& evt.get(RRULE_WEEKLY) == null 
-				&& evt.get(RRULE_MONTHLY) == null);
-	}
-
-	private Boolean isEventPrivate(final Map<String, String> e) {
-		Boolean isPrivate;
-		if (e.get(SUMMARY).toLowerCase().contains(PRIVATE)
-				|| e.get(SUMMARY).toLowerCase().contains(WEDDING)
-				|| e.get(LOCATION).toLowerCase().contains(PRIVATE)
-				|| (e.get(CLASS) != null && e.get(CLASS).toLowerCase().contains(PRIVATE))) {
-			isPrivate = true;
-		} else {
-			isPrivate = false;
-		}
-		return isPrivate;
-	}
-	
-	private boolean isDateInEvent(final M4Date date, final CalendarEvent event) {
-		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
-		return (this.dateUtils.isOnAfter(date.getStartTime(),
-				event.getStartDate()) && this.dateUtils.isOnBefore(
-				date.getEndTime(), event.getEndDate()));
-	}
-
-	private boolean isEventInDate(final M4Date date, final CalendarEvent event) {
-		this.debug(">>>> " + event.getStartDate() + "-" + event.getEndDate() + " : " + date);
-		return (this.dateUtils.isOnAfter(event.getStartDate(),
-				date.getStartTime()) && this.dateUtils.isOnBefore(
-				event.getEndDate(), date.getEndTime()));
 	}
 	
 	private void debug(String msg) {

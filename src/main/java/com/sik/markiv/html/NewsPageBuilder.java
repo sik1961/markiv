@@ -15,6 +15,7 @@ import org.joda.time.format.DateTimeFormatter;
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
 import com.sik.markiv.events.EventManager;
+import com.sik.markiv.events.EventUtility;
 import com.sik.markiv.utils.M4DateUtils;
 
 public class NewsPageBuilder {
@@ -33,6 +34,7 @@ public class NewsPageBuilder {
 	private EventManager eventMgr;
 	private HtmlManager htmlMgr;
 	private M4DateUtils du;
+	private EventUtility eu = new EventUtility();
 	
 
 	public NewsPageBuilder(final EventManager eventMgr) {
@@ -64,30 +66,30 @@ public class NewsPageBuilder {
 
 		final StringBuilder newsHtml = new StringBuilder();
 		// set up title
-		newsHtml.append(HtmlSnips.NEWS_HEAD_FMT1)
-			.append(HtmlSnips.NEWS_HEAD_FMT2)
-			.append(HtmlSnips.NEWS_HEAD_FMT3)
-			.append(HtmlSnips.NEWS_HEAD_FMT4)
-			.append(HtmlSnips.NEWS_HEAD_FMT5)
-			.append(HtmlSnips.NEWS_HEAD_FMT6)
-			.append(HtmlSnips.NEWS_HEAD_FMT7);
+		newsHtml.append(HtmlSnippets.NEWS_HEAD_FMT1)
+			.append(HtmlSnippets.NEWS_HEAD_FMT2)
+			.append(HtmlSnippets.NEWS_HEAD_FMT3)
+			.append(HtmlSnippets.NEWS_HEAD_FMT4)
+			.append(HtmlSnippets.NEWS_HEAD_FMT5)
+			.append(HtmlSnippets.NEWS_HEAD_FMT6)
+			.append(HtmlSnippets.NEWS_HEAD_FMT7);
 		
 		CalendarEvent nextPublicGig = this.getNextPublicGig(gigs);
 		if (nextPublicGig != null) {
 			LOG.info("Next gig: " + nextPublicGig.toString());
-			newsHtml.append(String.format(HtmlSnips.NEWS_FORMAT, 
+			newsHtml.append(String.format(HtmlSnippets.NEWS_FORMAT, 
 					NEWS_GIG_DF.print(this.du.adjustForDaylightSaving(nextPublicGig.getStartDate()).toDateTime()), 
-					HtmlSnips.cleanForHtml(nextPublicGig.getLocation())));
+					HtmlSnippets.cleanForHtml(nextPublicGig.getLocation())));
 		}
 		
 		for (String newsItem: this.getFixedNewsItems()) {
 			LOG.info("News item: " + newsItem);
-			newsHtml.append(HtmlSnips.cleanForHtml(newsItem + HtmlSnips.HTML_BREAK + HtmlSnips.HTML_BREAK + NEWLINE));
+			newsHtml.append(HtmlSnippets.cleanForHtml(newsItem + HtmlSnippets.HTML_BREAK + HtmlSnippets.HTML_BREAK + NEWLINE));
 		}
 				 
-		newsHtml.append(String.format(HtmlSnips.LAST_UPDATE_FORMAT,	new Date()));
+		newsHtml.append(String.format(HtmlSnippets.LAST_UPDATE_FORMAT,	new Date()));
 		
-		newsHtml.append(HtmlSnips.NEWS_TAIL_FMT8 + NEWLINE);
+		newsHtml.append(HtmlSnippets.NEWS_TAIL_FMT8 + NEWLINE);
 		
 		return newsHtml.toString();
 	}
@@ -99,7 +101,7 @@ public class NewsPageBuilder {
 	private CalendarEvent getNextPublicGig(List<CalendarEvent> gigs) {
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
-				if (eventMgr.isGig(e) && eventMgr.isEventPrivate(e)) {
+				if (eu.isGig(e) && eu.isEventPrivate(e)) {
 					return e;
 				}
 			}

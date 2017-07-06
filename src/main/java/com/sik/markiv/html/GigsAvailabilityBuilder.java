@@ -74,12 +74,12 @@ public class GigsAvailabilityBuilder {
 
 		final StringBuilder gigsHtml = new StringBuilder();
 		// set up title
-		gigsHtml.append(HtmlSnips.GIG_HEAD_FMT1)
-			.append(HtmlSnips.GIG_HEAD_FMT2)
-			.append(HtmlSnips.GIG_HEAD_FMT3)
-			.append(HtmlSnips.GIG_HEAD_FMT4)
-			.append(HtmlSnips.GIG_HEAD_FMT5)
-			.append(HtmlSnips.GIG_HEAD_FMT6);
+		gigsHtml.append(HtmlSnippets.GIG_HEAD_FMT1)
+			.append(HtmlSnippets.GIG_HEAD_FMT2)
+			.append(HtmlSnippets.GIG_HEAD_FMT3)
+			.append(HtmlSnippets.GIG_HEAD_FMT4)
+			.append(HtmlSnippets.GIG_HEAD_FMT5)
+			.append(HtmlSnippets.GIG_HEAD_FMT6);
 		StringBuilder location = null;
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
@@ -92,22 +92,22 @@ public class GigsAvailabilityBuilder {
 							location.append(PRIVATE_PARTY);
 						} else {
 							if (e.getLocation() != null) {
-								location.append(HtmlSnips.cleanForHtml(e.getLocation()));
+								location.append(HtmlSnippets.cleanForHtml(e.getLocation()));
 							} else {
-								location.append(HtmlSnips.cleanForHtml(e.getSummary()));
+								location.append(HtmlSnippets.cleanForHtml(e.getSummary()));
 							}
 							if (!e.getNotes().isEmpty()) {
-								location.append(HtmlSnips.HTML_BREAK + HtmlSnips.OPN_BKT);
-								location.append(HtmlSnips.cleanForHtml(e.getNotes()));
-								location.append(HtmlSnips.CLS_BKT);
+								location.append(HtmlSnippets.HTML_BREAK + HtmlSnippets.OPN_BKT);
+								location.append(HtmlSnippets.cleanForHtml(e.getNotes()));
+								location.append(HtmlSnippets.CLS_BKT);
 							}
 						}
 						if (location != null && location.length() > 0) {
-							gigsHtml.append(String.format(HtmlSnips.GIG1_FORMAT,
+							gigsHtml.append(String.format(HtmlSnippets.GIG1_FORMAT,
 											GIG_DF.print(this.du.adjustForDaylightSaving(e.getStartDate()).toDateTime()), 
 											getLocName(location)));
 							gigsHtml.append(NEWLINE);
-							gigsHtml.append(String.format(HtmlSnips.GIG2_FORMAT,
+							gigsHtml.append(String.format(HtmlSnippets.GIG2_FORMAT,
 											getLocAddr(location)));
 							gigsHtml.append(NEWLINE);
 						} else {
@@ -117,10 +117,10 @@ public class GigsAvailabilityBuilder {
 				}
 			}
 		} else {
-			gigsHtml.append(HtmlSnips.NO_GIGS + NEWLINE);
+			gigsHtml.append(HtmlSnippets.NO_GIGS + NEWLINE);
 		}
-		gigsHtml.append(HtmlSnips.TR_END + HtmlSnips.TABLE_END + NEWLINE);
-		gigsHtml.append(String.format(HtmlSnips.LAST_UPD_FMT, new Date()));
+		gigsHtml.append(HtmlSnippets.TR_END + HtmlSnippets.TABLE_END + NEWLINE);
+		gigsHtml.append(String.format(HtmlSnippets.LAST_UPD_FMT, new Date()));
 		LOG.info(gigs.size() + " Gig(s) found.");
 		return gigsHtml.toString();
 	}
@@ -174,17 +174,17 @@ public class GigsAvailabilityBuilder {
 
 		final UpdateRecord ur = this.eventMgr.getLatestUpdate();
 
-		availHtml.append(HtmlSnips.TABLE);
-		availHtml.append(HtmlSnips.TR + HtmlSnips.TD + NEWLINE);
-		availHtml.append(HtmlSnips.AVAIL_HEAD);
-		availHtml.append(HtmlSnips.TD_END + HtmlSnips.TR_END + NEWLINE);
-		availHtml.append(HtmlSnips.TR + HtmlSnips.TD + NEWLINE);
-		availHtml.append(String.format(HtmlSnips.N1 + HtmlSnips.CAL_LAST_UPD_FMT + HtmlSnips.N1_END + NEWLINE, ur
+		availHtml.append(HtmlSnippets.TABLE);
+		availHtml.append(HtmlSnippets.TR + HtmlSnippets.TD + NEWLINE);
+		availHtml.append(HtmlSnippets.AVAIL_HEAD);
+		availHtml.append(HtmlSnippets.TD_END + HtmlSnippets.TR_END + NEWLINE);
+		availHtml.append(HtmlSnippets.TR + HtmlSnippets.TD + NEWLINE);
+		availHtml.append(String.format(HtmlSnippets.N1 + HtmlSnippets.CAL_LAST_UPD_FMT + HtmlSnippets.N1_END + NEWLINE, ur
 						.getLastUpdated().toLocalDate()));
-		availHtml.append(String.format(HtmlSnips.LAST_UPD_FMT, new Date()));
-		availHtml.append(HtmlSnips.TD_END + HtmlSnips.TR_END + NEWLINE);
-		availHtml.append(HtmlSnips.TR + HtmlSnips.TD + NEWLINE);
-		availHtml.append(HtmlSnips.N1 + NEWLINE);
+		availHtml.append(String.format(HtmlSnippets.LAST_UPD_FMT, new Date()));
+		availHtml.append(HtmlSnippets.TD_END + HtmlSnippets.TR_END + NEWLINE);
+		availHtml.append(HtmlSnippets.TR + HtmlSnippets.TD + NEWLINE);
+		availHtml.append(HtmlSnippets.N1 + NEWLINE);
 
 		M4Date rolling = new M4Date();
 
@@ -201,7 +201,7 @@ public class GigsAvailabilityBuilder {
 			dateClear = (eventsOnDate.size() == 0);
 
 			if (dateClear) {
-				availHtml.append(String.format(HtmlSnips.FONT_COLOR_FMT, HtmlSnips.GREEN));
+				availHtml.append(String.format(HtmlSnippets.FONT_COLOR_FMT, HtmlSnippets.GREEN));
 				availTotal++;
 			} else {
 				this.debug(rolling.getStartTime().toLocalDate() + ": "
@@ -215,40 +215,40 @@ public class GigsAvailabilityBuilder {
 						unavailable = true;
 					}
 					if (!remarks.toString().isEmpty()) {
-						remarks.append(HtmlSnips.SLASH);
+						remarks.append(HtmlSnippets.SLASH);
 					}
 					remarks.append(e.getSummary());
 					if (e.getLocation() != null && !e.getLocation().isEmpty()
 							&& !e.isEventPrivate()) {
-						remarks.append(HtmlSnips.OPN_BKT);
+						remarks.append(HtmlSnippets.OPN_BKT);
 						remarks.append(e.getLocation());
-						remarks.append(HtmlSnips.CLS_BKT);
+						remarks.append(HtmlSnippets.CLS_BKT);
 					}
 					if (this.isRecentlyUpdated(e.getLastUpdated())) {
 						remarks.append(RECENT_ASTER);
 					}
 				}
 				if (unavailable) {
-					availHtml.append(String.format(HtmlSnips.FONT_COLOR_FMT, HtmlSnips.RED));
+					availHtml.append(String.format(HtmlSnippets.FONT_COLOR_FMT, HtmlSnippets.RED));
 				} else {
 					availHtml.append(String
-							.format(HtmlSnips.FONT_COLOR_FMT, HtmlSnips.AMBER));
+							.format(HtmlSnippets.FONT_COLOR_FMT, HtmlSnippets.AMBER));
 				}
 
 			}
-			availHtml.append(String.format(HtmlSnips.AVAIL_FMT, 
+			availHtml.append(String.format(HtmlSnippets.AVAIL_FMT, 
 					AVL_DF.print(rolling.getStartTime()), 
 					dateClear ? AVAILABLE:EMPTY_STRING, 
 					remarks.toString()));
-			availHtml.append(HtmlSnips.FONT_END + NEWLINE);
+			availHtml.append(HtmlSnippets.FONT_END + NEWLINE);
 
 			if (AVL_DF.print(rolling.getStartTime()).startsWith(SUN)) {
-				availHtml.append(HtmlSnips.HTML_HR + NEWLINE);
+				availHtml.append(HtmlSnippets.HTML_HR + NEWLINE);
 			}
 			rolling.rollDate(1);
 		}
-		availHtml.append(HtmlSnips.TD_END + HtmlSnips.TR_END + NEWLINE);
-		availHtml.append(HtmlSnips.TABLE_END);
+		availHtml.append(HtmlSnippets.TD_END + HtmlSnippets.TR_END + NEWLINE);
+		availHtml.append(HtmlSnippets.TABLE_END);
 		LOG.info("Availability: " + availTotal + "/" + AVL_DAYS_AHEAD
 				+ " days available.");
 		return availHtml.toString();
