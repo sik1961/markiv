@@ -37,6 +37,8 @@ public class EventManager {
 	private static final String DESCRIPTION = "DESCRIPTION";
 	private static final String SEMICOLON = ";";
 	private static final String COLON = ":";
+	private static final String COMMA = ",";
+	private static final String EQUALS= "=";
 	private static final String DTSTART = "DTSTART";
 	private static final String DTEND = "DTEND";
 	private static final String EXDATE = "EXDATE";
@@ -49,6 +51,9 @@ public class EventManager {
 	private static final String BEGIN_ALARM = "BEGIN:VALARM";
 	private static final String END_ALARM = "END:VALARM";
 	private static final String LAST_MODIFIED = "LAST-MODIFIED";
+	private static final String GIG = "gig";
+	private static final String UNAVAILABLE = "unavailable";
+	private static final String NOT_AVAILABLE = "not available";
 	
 
 	private List<CalendarEvent> allEvents;
@@ -186,9 +191,9 @@ public class EventManager {
 		String value = null;
 		if (line.startsWith(DTSTART + SEMICOLON) || line.startsWith(DTEND + SEMICOLON)
 				|| line.startsWith(EXDATE + SEMICOLON)) {
-			sp = line.indexOf(";");
+			sp = line.indexOf(SEMICOLON);
 		} else if (line.startsWith(RRULE + COLON)) {
-			sp = line.lastIndexOf("=");
+			sp = line.lastIndexOf(EQUALS);
 		} else {
 			sp = line.indexOf(COLON);
 		}
@@ -201,7 +206,7 @@ public class EventManager {
 				} else {
 					eventMap.put(
 							key,
-							eventMap.get(key) + ","
+							eventMap.get(key) + COMMA
 									+ this.dateUtils.stdDate(value));
 				}
 			} else {
@@ -272,7 +277,7 @@ public class EventManager {
 			rType = RepeatType.MONTHLY;
 			increment = 1;
 		} else {
-			throw new IllegalArgumentException("Invalid RRULE found");
+			throw new MarkIVException("Invalid RRULE found");
 		}
 
 		LocalDateTime sDate = null;
@@ -282,7 +287,7 @@ public class EventManager {
 			sDate = new LocalDateTime(this.dateUtils.formatDate(this.dateUtils
 					.stdDate(evt.get(DTSTART))));
 		} else {
-			throw new IllegalStateException("DTSTART is null for event: " + evt);
+			throw new MarkIVException("DTSTART is null for event: " + evt);
 		}
 		if (evt.get(DTEND) != null) {
 			eDate = new LocalDateTime(
@@ -311,8 +316,7 @@ public class EventManager {
 					this.debug("\tAdding rept'g evt:" + evt.get(SUMMARY) + " on " + sDate.toString());
 					addEvent(events, evt, sDate, eDate);
 				} else {
-					this.debug("\tExcluded date: " + sDate + " not added");
-					this.debug("Not added: " + sDate + " in " + excludedDates);
+					this.debug("\tExcluded date: " + sDate + " - not added because it's in " + excludedDates);
 				}
 			} 
 			sDate = this.dateUtils.dateRoll(sDate, rType, increment);
@@ -327,7 +331,7 @@ public class EventManager {
 	private List<LocalDateTime> getExcludedDates(Map<String, String> evt) {
 		List<LocalDateTime> retVal = new ArrayList<LocalDateTime>();
 		if (evt.get(EXDATE) != null) {
-			String[] exDates = evt.get(EXDATE).split(",");
+			String[] exDates = evt.get(EXDATE).split(COMMA);
 			for (String xd : exDates) {
 				retVal.add(this.dateUtils.formatDate(xd));
 			}
@@ -336,23 +340,27 @@ public class EventManager {
 	}
 	
 	private void addEvent(List<CalendarEvent> events,
-			final Map<String, String> evt, LocalDateTime sDate,
+			final Map<String, String> evt, 
+			LocalDateTime sDate,
 			LocalDateTime eDate) {
-		events.add(new CalendarEvent(sDate, eDate, 
-				evt.get(SUMMARY), 
-				evt.get(LOCATION), 
-				evt.get(DESCRIPTION), 
-				this.getLastUpdated(evt), 
-				evt.get(ORGANIZER), 
-				getEventType(evt), 
-				this.isEventPrivate(evt)));
+		events.add(new CalendarEvent()
+				.withStartDate(sDate)
+				.withEndDate(eDate)
+				.withSummary(	evt.get(SUMMARY))
+				.withLocation(evt.get(LOCATION))
+				.withNotes(evt.get(DESCRIPTION))
+				.withLastUpdated(this.getLastUpdated(evt))
+				.withLastUpdatedBy(evt.get(ORGANIZER))
+				.withEventType(getEventType(evt))
+				.withEventPrivate(this.isEventPrivate(evt))
+				.validate());
 	}
 
 	private EventType getEventType(final Map<String, String> evt) {
-		if (evt.get(SUMMARY).toLowerCase().contains("gig")) {
+		if (evt.get(SUMMARY).toLowerCase().contains(GIG)) {
 			return EventType.GIG;
-		} else if (evt.get(SUMMARY).toLowerCase().contains("unavailable")
-				|| evt.get(SUMMARY).toLowerCase().contains("not available")) {
+		} else if (evt.get(SUMMARY).toLowerCase().contains(UNAVAILABLE)
+				|| evt.get(SUMMARY).toLowerCase().contains(NOT_AVAILABLE)) {
 			return EventType.UNAVAILABILITY;
 		} else {
 			return EventType.INFO;
@@ -360,6 +368,7 @@ public class EventManager {
 	}
 
 	/**
+	 * Builds a List of HashMap 'events' from the google calendar feed
 	 * @return
 	 */
 	private List<HashMap<String, String>> buildMapFromCalendarFeed(

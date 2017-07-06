@@ -4,6 +4,8 @@ package com.sik.markiv.api;
  */
 import org.joda.time.LocalDateTime;
 
+import com.sik.markiv.exception.MarkIVException;
+
 public class CalendarEvent {
 	private LocalDateTime startDate;
 	private LocalDateTime endDate;
@@ -15,98 +17,97 @@ public class CalendarEvent {
 	private EventType eventType;
 	private Boolean eventPrivate;
 	    
-    public CalendarEvent(final LocalDateTime startDate,
-            final LocalDateTime endDate,
-            final String summary,
-            final String location,
-            final String notes,
-            final LocalDateTime lastUpdated,
-            final String lastUpdatedBy,
-            final EventType eventType,
-            final Boolean eventPrivate) {
-            super();
-            this.startDate = startDate;
-            this.endDate = endDate;
-            this.summary = summary;
-            this.notes = notes;
-            this.location = location;
-            this.lastUpdated = lastUpdated;
-            this.lastUpdatedBy = lastUpdatedBy;
-            this.eventType = eventType;
-            this.eventPrivate = eventPrivate;
-        }
-
+	public CalendarEvent() {}
+	
     public LocalDateTime getStartDate() {
 		return this.startDate;
 	}
 
-	public void setStartDate(final LocalDateTime startDate) {
+	public CalendarEvent withStartDate(final LocalDateTime startDate) {
 		this.startDate = startDate;
+		return this;
 	}
 
 	public LocalDateTime getEndDate() {
 		return this.endDate;
 	}
 
-	public void setEndDate(final LocalDateTime endDate) {
+	public CalendarEvent withEndDate(final LocalDateTime endDate) {
 		this.endDate = endDate;
+		return this;
 	}
 
 	public String getSummary() {
 		return this.summary;
 	}
 
-	public void setSummary(final String remarks) {
+	public CalendarEvent withSummary(final String remarks) {
 		this.summary = remarks;
+		return this;
 	}
 
 	public String getLocation() {
 		return this.location;
 	}
 
-	public void setLocation(final String location) {
+	public CalendarEvent withLocation(final String location) {
 		this.location = location;
+		return this;
 	}
 
 	public String getNotes() {
         return this.notes;
     }
 
-    public void setNotes(final String notes) {
+    public CalendarEvent withNotes(final String notes) {
         this.notes = notes;
+        return this;
     }
 
 	public LocalDateTime getLastUpdated() {
         return this.lastUpdated;
     }
 
-    public void setLastUpdated(final LocalDateTime lastUpdated) {
+    public CalendarEvent withLastUpdated(final LocalDateTime lastUpdated) {
         this.lastUpdated = lastUpdated;
+        return this;
     }
 
     public String getLastUpdatedBy() {
         return this.lastUpdatedBy;
     }
 
-    public void setLastUpdatedBy(final String lastUpdatedBy) {
+    public CalendarEvent withLastUpdatedBy(final String lastUpdatedBy) {
         this.lastUpdatedBy = lastUpdatedBy;
+        return this;
     }
 
     public EventType getEventType() {
         return this.eventType;
     }
 
-    public void setEventType(final EventType eventType) {
+    public CalendarEvent withEventType(final EventType eventType) {
         this.eventType = eventType;
+        return this;
     }
 
     public Boolean isEventPrivate() {
         return this.eventPrivate;
     }
 
-    public void setEventPrivate(final Boolean eventPrivate) {
+    public CalendarEvent withEventPrivate(final Boolean eventPrivate) {
         this.eventPrivate = eventPrivate;
+        return this;
     }
+    
+    public CalendarEvent validate() {
+		if (this.startDate ==  null ||
+				this.endDate == null ||
+				this.summary == null) {
+			throw new MarkIVException("Invalid CalendarEvent! Minimum start date, end date & summary required");
+		}
+		return null;
+	}
     
     @Override
 	public int hashCode() {
@@ -175,5 +176,4 @@ public class CalendarEvent {
         builder.append("]");
         return builder.toString();
     }
-
 }

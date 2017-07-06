@@ -29,8 +29,13 @@ public class M4DateUtils {
 	private static final int DAY_END_SS = 59;
 	private static final int DAY_END_MS = 999;
 	
+	private static final String EMPTY = "";
+	private static final String T = "T";
+	private static final String Z = "Z";
 	private static final String YYYYMMDDHHMMSS = "yyyyMMddhhmmss";
 	private static final String YYYYMMDD = "yyyyMMdd";
+	private static final String VALUE = "VALUE=DATE:";
+	private static final String TZID = "TZID=Europe/London:";
 	public static final int DAY_LIMIT = 7;
 	public static final int OBSOLETE_DAY_LIMIT = 2;
 	public static final LocalDateTime RECENT_UPDATE_DATE = new LocalDateTime(new Date()).minusDays(DAY_LIMIT);
@@ -41,11 +46,11 @@ public class M4DateUtils {
 	 * @return
 	 */
 	public String stdDate(final String inDate) {
-		String outDate = "";
-		if (inDate.contains("VALUE=DATE:")) {
-			outDate = inDate.replace("VALUE=DATE:", "");
-		} else if (inDate.contains("TZID=Europe/London:")) {
-			outDate = inDate.replace("TZID=Europe/London:", "");
+		String outDate = EMPTY;
+		if (inDate.contains(VALUE)) {
+			outDate = inDate.replace(VALUE, EMPTY);
+		} else if (inDate.contains(TZID)) {
+			outDate = inDate.replace(TZID, EMPTY);
 		} else {
 			outDate = inDate;
 		}
@@ -94,11 +99,11 @@ public class M4DateUtils {
 			if (inDate.length() == VALID_DATE_16) {
 				outDate = new LocalDateTime(
 						new SimpleDateFormat(YYYYMMDDHHMMSS).parse(inDate
-								.replace("T", "").replace("Z", "")));
+								.replace(T, EMPTY).replace(Z, EMPTY)));
 			} else if (inDate.length() == VALID_DATE_15) {
 				outDate = new LocalDateTime(
 						new SimpleDateFormat(YYYYMMDDHHMMSS).parse(inDate
-								.replace("T", "")));
+								.replace(T, EMPTY)));
 			} else if (inDate.length() == VALID_DATE_8) {
 				outDate = new LocalDateTime(
 						new SimpleDateFormat(YYYYMMDD).parse(inDate));
