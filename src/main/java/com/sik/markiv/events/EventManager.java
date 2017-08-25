@@ -2,7 +2,6 @@ package com.sik.markiv.events;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.joda.time.LocalDateTime;
 
 import com.sik.markiv.api.CalendarEvent;
+import com.sik.markiv.api.CalendarEventComparator;
 import com.sik.markiv.api.EventType;
 import com.sik.markiv.api.M4Date;
 import com.sik.markiv.api.M4Fields;
@@ -29,7 +29,7 @@ public class EventManager {
 	private List<CalendarEvent> allEvents;
 	private final M4DateUtils dateUtils = new M4DateUtils();
 	private final EventUtility eu = new EventUtility();
-
+	
 	public EventManager(InputStream feed) {
 		this.updateFromFeed(feed);
 	}
@@ -126,17 +126,6 @@ public class EventManager {
 	private List<CalendarEvent> buildEvents(
 			final List<HashMap<String, String>> rawEventsMapList) {
 		final List<CalendarEvent> events = new ArrayList<CalendarEvent>();
-		final Comparator<CalendarEvent> comparator = new Comparator<CalendarEvent>() {
-
-			@Override
-			public int compare(final CalendarEvent e1, final CalendarEvent e2) {
-				int retVal = e1.getStartDate().compareTo(e2.getStartDate());
-				if (retVal == 0) {
-					retVal = e1.getEndDate().compareTo(e2.getEndDate());
-				}
-				return retVal;
-			}
-		};
 
 		final Iterator<HashMap<String, String>> itr = rawEventsMapList
 				.iterator();
@@ -157,7 +146,7 @@ public class EventManager {
 			}
 		}
 
-		Collections.sort(events, comparator);
+		Collections.sort(events, new CalendarEventComparator());
 
 		LOG.info(events.size() + " CalendarEvent(s) generated");
 

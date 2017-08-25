@@ -71,6 +71,7 @@ public class MarkIVHelper {
 	public void doAvailabilityStats() {
 		Map<String,Integer> statMap = new TreeMap<>();
 		for (CalendarEvent e: em.getAllEvents()) {
+			LOG.info(e);
 			if (e.getEventType() == EventType.UNAVAILABILITY) {
 				statMap = updateStatMap(e.getSummary(), statMap);
 			}
