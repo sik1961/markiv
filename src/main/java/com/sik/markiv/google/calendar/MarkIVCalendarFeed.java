@@ -7,7 +7,8 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Properties;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
@@ -19,7 +20,7 @@ import com.sik.markiv.exception.MarkIVException;
 import com.sik.markiv.utils.PropsUtils;
  
 public class MarkIVCalendarFeed {
-	private static final Logger LOG = Logger.getLogger(MarkIVCalendarFeed.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MarkIVCalendarFeed.class);
 	private String feedUrl;
 	private static final String PROPS_FILE = "/Users/sik/Java/markiv/markiv.properties";
 	

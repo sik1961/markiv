@@ -11,7 +11,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+//import org.apache.log4j.Logger;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
@@ -25,7 +28,7 @@ import com.sik.markiv.html.NewsPageBuilder;
 import com.sik.markiv.utils.PropsUtils;
 
 public class MarkIVHelper {
-	private static final Logger LOG = Logger.getLogger(MarkIVHelper.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MarkIVHelper.class);
 	private static final String PROPS_FILE = "/Users/sik/Java/markiv/markiv.properties";
 
 	private Properties props;
@@ -71,7 +74,7 @@ public class MarkIVHelper {
 	public void doAvailabilityStats() {
 		Map<String,Integer> statMap = new TreeMap<>();
 		for (CalendarEvent e: em.getAllEvents()) {
-			LOG.info(e);
+			LOG.info(e.toString());
 			if (e.getEventType() == EventType.UNAVAILABILITY) {
 				statMap = updateStatMap(e.getSummary(), statMap);
 			}

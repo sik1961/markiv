@@ -1,19 +1,18 @@
 package com.sik.markiv.config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 /**
  * @author sik
  *
  */
-import org.apache.log4j.Logger;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.ComponentScan;
-//import org.springframework.context.annotation.Configuration;
 
 import com.sik.markiv.google.calendar.MarkIVCalendarFeed;
 
 @SpringBootApplication
 public class AppContextConfiguration {
-	private static final Logger LOG = Logger.getLogger(AppContextConfiguration.class);
+	private static final Logger LOG = LoggerFactory.getLogger(AppContextConfiguration.class);
 	
 	@Bean
 	MarkIVCalendarFeed getFeed() {

@@ -7,8 +7,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
 import org.joda.time.LocalDateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.CalendarEventComparator;
@@ -22,7 +23,7 @@ import com.sik.markiv.google.calendar.CalFields;
 import com.sik.markiv.utils.M4DateUtils;
 
 public class EventManager {
-	private static final Logger LOG = Logger.getLogger(EventManager.class);
+	private static final Logger LOG = LoggerFactory.getLogger(EventManager.class);
 
 	
 
