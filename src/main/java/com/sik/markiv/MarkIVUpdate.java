@@ -4,11 +4,11 @@ package com.sik.markiv;
  * @author sik
  */
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -23,7 +23,7 @@ public class MarkIVUpdate {
 	DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
 	private static final String DAYTIME = "0 0 7-23 * * *"; // hourly 7am-11pm
 	private static final String END_OF_DAY = "0 30 23 * * *"; // daily @ 11:30pm
-	private static final Logger LOG = LoggerFactory .getLogger(MarkIVUpdate.class);
+	private static final Logger LOG = LogManager.getLogger(MarkIVUpdate.class);
 
 	MarkIVHelper m4h;
 	private EventManager em;

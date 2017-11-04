@@ -11,14 +11,14 @@ import java.util.List;
 import java.util.Properties;
 
 import org.apache.commons.net.ftp.FTPClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.sik.markiv.exception.MarkIVException;
 import com.sik.markiv.utils.PropsUtils;
 
 public class MarkIVUploader {
-	private static final Logger LOG = LoggerFactory.getLogger(MarkIVUploader.class);
+	private static final Logger LOG = LogManager.getLogger(MarkIVUploader.class);
 	private Properties props;
 	private PropsUtils pu = new PropsUtils();
 

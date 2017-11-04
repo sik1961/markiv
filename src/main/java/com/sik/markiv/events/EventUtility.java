@@ -9,9 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
@@ -23,7 +23,7 @@ import com.sik.markiv.utils.M4DateUtils;
 
 public class EventUtility {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EventUtility.class);
+	private static final Logger LOG = LogManager.getLogger(EventUtility.class);
 	private final M4DateUtils dateUtils = new M4DateUtils();
 	
 	/**

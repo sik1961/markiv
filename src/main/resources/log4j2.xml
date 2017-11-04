@@ -1,8 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn" name="MarkIV" packages="">
+  <Appenders>
+    <RollingFile name="markiv-rf" fileName="../logs/markiv.log"
+                 filePattern="../logs/$${date:yyyy-MM}/markiv-%d{MM-dd-yyyy}-%i.log.gz" >
+      <PatternLayout>
+        <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
+      </PatternLayout>
+      <Policies>
+        <TimeBasedTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="250 MB"/>
+      </Policies>
+      <DefaultRolloverStrategy max="20"/>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="markiv-rf"/>
+    </Root>
+  </Loggers>
+</Configuration>
+<!-- <?xml version="1.0" encoding="UTF-8"?>
 <Configuration status="info" name="MarkIV" packages="">
   <Appenders>
     <RollingFile name="RollingFile" fileName="../logs/markiv.log"
-                 filePattern="../logs/$${date:yyyy-MM}/markiv-%i.log.gz">
+                 filePattern="../logs/markiv-%i.log">
       <PatternLayout>
         <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
       </PatternLayout>
@@ -18,4 +39,4 @@
       <AppenderRef ref="RollingFile"/>
     </Root>
   </Loggers>
-</Configuration>
+</Configuration> -->
