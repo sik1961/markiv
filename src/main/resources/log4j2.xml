@@ -1,21 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="info" name="MarkIV" packages="">
-  <Appenders>
-    <RollingFile name="RollingFile" fileName="../logs/markiv.log"
-                 filePattern="../logs/$${date:yyyy-MM}/markiv-%i.log.gz">
-      <PatternLayout>
-        <Pattern>%d %p %c{1.} [%t] %m%n</Pattern>
-      </PatternLayout>
-       <Policies>
-        <TimeBasedTriggeringPolicy />
-        <SizeBasedTriggeringPolicy size="100 MB"/>
-      </Policies>
-      <DefaultRolloverStrategy max="5"/>
-    </RollingFile>
-  </Appenders>
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="RollingFile"/>
-    </Root>
-  </Loggers>
+<Configuration status="info">
+    <!-- appender definitions -->
+    <Appenders>
+        <RollingFile name="RollingFileAppender" fileName="/Users/sik/Java/logs/markiv/application.log"
+                     filePattern="/Users/sik/Java/logs/markiv/application-%d{yyyyMMdd}-%i.log.gz"
+                     immediateFlush="true">
+            <PatternLayout>
+                <Pattern>%date [%thread] [%-6level] %class{2} (%file:%line) - %message%n</Pattern>
+            </PatternLayout>
+            <Policies>
+                <TimeBasedTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="100 MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        <Async name="AsyncAppender" shutdownTimeout="2000">
+            <AppenderRef ref="RollingFileAppender"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+        <Logger name="org.hibernate" level="warn"/>
+        <Root level="info">
+            <AppenderRef ref="AsyncAppender"/>
+        </Root>
+    </Loggers>
 </Configuration>
