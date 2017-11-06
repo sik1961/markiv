@@ -8,10 +8,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
@@ -20,7 +20,7 @@ import com.sik.markiv.events.EventUtility;
 import com.sik.markiv.utils.M4DateUtils;
 
 public class NewsPageBuilder {
-	private static final Logger LOG = LoggerFactory.getLogger(NewsPageBuilder.class);
+	private static final Logger LOG = LogManager.getLogger(NewsPageBuilder.class);
 
 	private static final DateTimeFormatter NEWS_GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
 	private static final String NEWLINE = "\n";

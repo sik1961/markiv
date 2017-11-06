@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sik.markiv</groupId>
 	<artifactId>markiv</artifactId>
-	<version>0.4.8</version>
+	<version>0.4.9</version>
 	<name>Mark IV Mgt</name>
 	<dependencies>
 		<dependency>
@@ -81,8 +81,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.apache.logging.log4j</groupId>
-			<artifactId>log4j-slf4j-impl</artifactId>
-			<version>2.7</version>
+			<artifactId>log4j-core</artifactId>
+			<version>2.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.9.1</version>
 		</dependency>
 	</dependencies>
 	<build>

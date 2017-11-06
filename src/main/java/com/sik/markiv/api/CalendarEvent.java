@@ -106,7 +106,7 @@ public class CalendarEvent {
 				this.summary == null) {
 			throw new MarkIVException("Invalid CalendarEvent! Minimum start date, end date & summary required");
 		}
-		return null;
+		return this;
 	}
     
     @Override
