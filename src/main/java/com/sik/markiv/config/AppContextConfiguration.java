@@ -1,17 +1,16 @@
 package com.sik.markiv.config;
 import org.apache.logging.log4j.LogManager;
-
 import org.apache.logging.log4j.Logger;
-/**
- * @author sik
- *
- */
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
 
 import com.sik.markiv.google.calendar.MarkIVCalendarFeed;
 
-@SpringBootApplication
+@Configuration
+@PropertySource("file:${env.markiv.properties.location}/rabbitmq.properties")
+@PropertySource("file:${env.markiv.properties.location}/tracking-staging-errors.properties")
+@PropertySource("file:${env.markiv.properties.location}/application.properties")
 public class AppContextConfiguration {
 	private static final Logger LOG = LogManager.getLogger(AppContextConfiguration.class);
 	
