@@ -8,9 +8,7 @@ import org.springframework.context.annotation.PropertySource;
 import com.sik.markiv.google.calendar.MarkIVCalendarFeed;
 
 @Configuration
-@PropertySource("file:${env.markiv.properties.location}/rabbitmq.properties")
-@PropertySource("file:${env.markiv.properties.location}/tracking-staging-errors.properties")
-@PropertySource("file:${env.markiv.properties.location}/application.properties")
+@PropertySource("file:${env.markiv.properties.location}/markiv.properties")
 public class AppContextConfiguration {
 	private static final Logger LOG = LogManager.getLogger(AppContextConfiguration.class);
 	
