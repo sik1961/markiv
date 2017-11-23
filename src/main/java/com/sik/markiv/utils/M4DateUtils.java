@@ -181,6 +181,16 @@ public class M4DateUtils {
 	}
 	
 	/**
+	 * Is date t1 equal or before date t2?
+	 * @param t1
+	 * @param t2
+	 * @return
+	 */
+	public boolean isBefore(final LocalDateTime t1, final LocalDateTime t2) {
+		return t1.isBefore(t2);
+	}
+	
+	/**
 	 * Is the date recent?
 	 * @param t1
 	 * @param OBSOLETE_DAY_LIMIT

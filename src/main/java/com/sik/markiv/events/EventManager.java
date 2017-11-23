@@ -195,8 +195,12 @@ public class EventManager {
 					+ eDate.toDateTime());
 		}
 
-		if (this.dateUtils.isOnBefore(untilDate, eDate)) {
-			LOG.warn("WARNING - Calendar anomoly! untilDate earlier that endDate - setting untilDate to endDate");
+		if (this.dateUtils.isBefore(untilDate, eDate)) {
+			LOG.warn("UntilDate < EndDate - setting untilDate to endDate - UID=" + evt.get("UID"));
+			debug("Evt=" + evt);
+			debug("UntilDate=" + untilDate);
+			debug("EndDate=" + eDate);
+
 			untilDate = eDate;
 		}
 
