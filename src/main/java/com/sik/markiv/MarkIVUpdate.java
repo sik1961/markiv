@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 import org.joda.time.LocalDateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +19,10 @@ import com.sik.markiv.api.UpdateRecord;
 import com.sik.markiv.events.EventManager;
 import com.sik.markiv.exception.MarkIVException;
 import com.sik.markiv.google.calendar.MarkIVCalendarFeed;
+import com.sik.markiv.utils.MarkIVHelper;
 
-@Component
+@SpringBootApplication
+@EnableScheduling
 public class MarkIVUpdate {
 
 	DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
@@ -38,6 +43,10 @@ public class MarkIVUpdate {
 		this.calendarLastUpdate = new LocalDateTime(0);
 	}
 
+	public static void main(String[] args) throws Exception {
+		new SpringApplication(MarkIVUpdate.class).run(args);
+	}
+	
 	@Scheduled(cron = DAYTIME)
 	public void m4Update() throws MarkIVException {
 		update(false);

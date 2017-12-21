@@ -1,9 +1,10 @@
-package com.sik.markiv;
+package com.sik.markiv.utils;
 /**
  * @author sik
  *
  */
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -23,11 +24,13 @@ import com.sik.markiv.html.GalleryManager;
 import com.sik.markiv.html.GigsAvailabilityBuilder;
 import com.sik.markiv.html.HtmlManager;
 import com.sik.markiv.html.NewsPageBuilder;
-import com.sik.markiv.utils.PropsUtils;
 
 public class MarkIVHelper {
 	private static final Logger LOG = LogManager.getLogger(MarkIVHelper.class);
 	private static final String PROPS_FILE = "/Users/sik/Java/markiv/markiv.properties";
+	private static final DecimalFormat DEC_FMT = new DecimalFormat("###.##");
+	private static final double DAYS_IN_YEAR = 365.0D;
+	private static final int HUNDRED = 100;
 
 	private Properties props;
 	private PropsUtils pu = new PropsUtils(); 
@@ -71,15 +74,13 @@ public class MarkIVHelper {
 	
 	public void doAvailabilityStats() {
 		Map<String,Integer> statMap = new TreeMap<>();
-		for (CalendarEvent e: em.getAllEvents()) {
-			LOG.info(e.toString());
-			if (e.getEventType() == EventType.UNAVAILABILITY) {
-				statMap = updateStatMap(e.getSummary(), statMap);
-			}
+		for (CalendarEvent e: em.getByType(EventType.UNAVAILABILITY, System.currentTimeMillis(), false)) {
+			LOG.debug(e.toString());
+			statMap = updateStatMap(e.getSummary(), statMap);
 		}
 		for (String key: statMap.keySet()) {
 			LOG.info("Unavailable: " + key.toUpperCase() + " " + statMap.get(key) + " days " + 
-					(statMap.get(key)/365)*100 + "%");
+					 DEC_FMT.format((statMap.get(key)/DAYS_IN_YEAR)*HUNDRED) + "%");
 		}
 	}
 
