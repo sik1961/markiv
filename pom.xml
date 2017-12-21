@@ -115,7 +115,7 @@
 			      <configuration>
 			        <classifier>jwd</classifier>
 			        <finalName>markiv</finalName>
-			        <mainClass>${com.sik.markiv.MarkIVScheduler}</mainClass>
+			        <mainClass>${com.sik.markiv.MarkIVUpdate}</mainClass>
 			      </configuration>
 			    </execution>
 			  </executions>
@@ -135,7 +135,7 @@
 					<configuration>
   						<archive>
     						<manifest>
-								<mainClass>com.sik.markiv.MarkIVScheduler</mainClass>
+								<mainClass>com.sik.markiv.MarkIVUpdate</mainClass>
 								<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
               					<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
     						</manifest>
