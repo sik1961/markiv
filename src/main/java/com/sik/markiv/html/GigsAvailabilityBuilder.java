@@ -69,8 +69,7 @@ public class GigsAvailabilityBuilder {
 
 	public String gigsBodyBuilder() {
 
-		List<CalendarEvent> gigs = eventMgr.getByType(EventType.GIG,
-				System.currentTimeMillis(), true);
+		List<CalendarEvent> gigs = eventMgr.getConfirmedGigs();
 
 		final StringBuilder gigsHtml = new StringBuilder();
 		// set up title
@@ -84,7 +83,7 @@ public class GigsAvailabilityBuilder {
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
 				location = new StringBuilder();
-				LOG.info("Gig:" + e.getStartDate().toString() + " : " + e.getLocation());
+				LOG.info("Confirmed gig: " + e.getStartDate().toString() + " : " + e.getLocation());
 				if (e.getStartDate()
 						.isBefore(this.getDateHence(GIG_DAYS_AHEAD))) {
 					if (isGig(e)) {

@@ -63,7 +63,7 @@ public class NewsPageBuilder {
 	}
 
 	public String newsBodyBuilder() {
-		List<CalendarEvent> gigs = eventMgr.getByType(EventType.GIG, System.currentTimeMillis(), true);
+		List<CalendarEvent> gigs = eventMgr.getConfirmedGigs();
 
 		final StringBuilder newsHtml = new StringBuilder();
 		// set up title
@@ -102,7 +102,7 @@ public class NewsPageBuilder {
 	private CalendarEvent getNextPublicGig(List<CalendarEvent> gigs) {
 		if (gigs.size() > 0) {
 			for (final CalendarEvent e : gigs) {
-				if (eu.isGig(e) && eu.isEventPrivate(e)) {
+				if (eu.isGig(e) && !eu.isEventPrivate(e)) {
 					return e;
 				}
 			}

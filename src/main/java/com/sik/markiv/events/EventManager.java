@@ -103,6 +103,20 @@ public class EventManager {
 		}
 		return filteredEvents;
 	}
+	
+	/**
+	 * Get confirmed gigs
+	 * @return
+	 */
+	public List<CalendarEvent> getConfirmedGigs() {
+		final List<CalendarEvent> filteredEvents = new ArrayList<CalendarEvent>();
+		for (final CalendarEvent e : this.getByType(EventType.GIG, System.currentTimeMillis(), true)) {
+			if (e.isConfirmed()) {
+				filteredEvents.add(e);
+			}
+		}
+		return filteredEvents;
+	}
 
 	/**
 	 * Get latest update

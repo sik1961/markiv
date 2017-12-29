@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.sik.markiv</groupId>
 	<artifactId>markiv</artifactId>
-	<version>0.4.12</version>
+	<version>0.4.13</version>
 	<name>Mark IV Mgt</name>
 	<dependencies>
 		<dependency>

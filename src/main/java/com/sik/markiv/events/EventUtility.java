@@ -110,6 +110,18 @@ public class EventUtility {
 	}
 	
 	/**
+	 * Is the event confirmed?
+	 * @param evy
+	 * @return
+	 */
+	private Boolean isConfirmed(Map<String, String> evt) {
+		return evt.get(CalFields.SUMMARY).toLowerCase().contains(M4Fields.CONFIRMED);
+	}
+	public Boolean isConfirmed(CalendarEvent evt) {
+		return (evt.getSummary().toLowerCase().contains(M4Fields.CONFIRMED));
+	}
+	
+	/**
 	 * Check event exists with same Start Date (YYYYMMDD) & Type
 	 * 
 	 * @param e
@@ -208,13 +220,14 @@ public class EventUtility {
 		events.add(new CalendarEvent()
 				.withStartDate(sDate)
 				.withEndDate(eDate)
-				.withSummary(	evt.get(CalFields.SUMMARY))
+				.withSummary(evt.get(CalFields.SUMMARY))
 				.withLocation(evt.get(CalFields.LOCATION))
 				.withNotes(evt.get(CalFields.DESCRIPTION))
 				.withLastUpdated(this.getLastUpdated(evt))
 				.withLastUpdatedBy(evt.get(CalFields.ORGANIZER))
 				.withEventType(getEventType(evt))
 				.withEventPrivate(this.isEventPrivate(evt))
+				.withConfirmed(this.isConfirmed(evt))
 				.validate());
 	}
 

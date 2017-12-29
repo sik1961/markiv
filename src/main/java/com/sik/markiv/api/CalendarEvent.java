@@ -16,6 +16,8 @@ public class CalendarEvent {
 	private String lastUpdatedBy;
 	private EventType eventType;
 	private Boolean eventPrivate;
+	private Boolean confirmed;
+	
 	    
 	public CalendarEvent() {}
 	
@@ -100,6 +102,15 @@ public class CalendarEvent {
         return this;
     }
     
+    public Boolean isConfirmed() {
+        return this.confirmed;
+    }
+
+    public CalendarEvent withConfirmed(final Boolean confirmed) {
+        this.confirmed = confirmed;
+        return this;
+    }
+    
     public CalendarEvent validate() {
 		if (this.startDate ==  null ||
 				this.endDate == null ||
@@ -173,6 +184,8 @@ public class CalendarEvent {
         builder.append(this.eventType);
         builder.append(", eventPrivate=");
         builder.append(this.eventPrivate);
+        builder.append(", confirmed=");
+        builder.append(this.confirmed);
         builder.append("]");
         return builder.toString();
     }
