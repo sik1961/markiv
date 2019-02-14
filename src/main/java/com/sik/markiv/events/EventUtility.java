@@ -106,7 +106,8 @@ public class EventUtility {
 	 * @return
 	 */
 	public boolean isEventPrivate(CalendarEvent e) {
-		return (e.isEventPrivate() || e.getLocation().toLowerCase().contains(M4Fields.PRIVATE));
+		return (e.isEventPrivate() || e.getLocation().toLowerCase().contains(M4Fields.PRIVATE)
+				|| e.getNotes().toLowerCase().contains(M4Fields.PRIVATE));
 	}
 	
 	/**
@@ -117,6 +118,7 @@ public class EventUtility {
 	private Boolean isConfirmed(Map<String, String> evt) {
 		return evt.get(CalFields.SUMMARY).toLowerCase().contains(M4Fields.CONFIRMED);
 	}
+
 	public Boolean isConfirmed(CalendarEvent evt) {
 		return (evt.getSummary().toLowerCase().contains(M4Fields.CONFIRMED));
 	}
