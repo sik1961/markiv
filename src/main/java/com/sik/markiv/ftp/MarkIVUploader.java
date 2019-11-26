@@ -38,8 +38,11 @@ public class MarkIVUploader {
 			LOG.debug("Connecting to: " + this.props.getProperty("FtpServer"));
 			ftp.connect(this.props.getProperty("FtpServer"));
 			LOG.debug("Logging in with id: " + this.props.getProperty("FtpId"));
-			ftp.login(this.props.getProperty("FtpId"),
+			boolean loginSucceeded = ftp.login(this.props.getProperty("FtpId"),
 					this.props.getProperty("FtpPw"));
+			if (loginSucceeded) {
+				LOG.info("Login succeeded");
+			}
 
 			for (final String file : files) {
 				final String localFile = String.format("%s/%s",
@@ -50,7 +53,10 @@ public class MarkIVUploader {
 
 				LOG.info(String.format("Uploading %s -> %s", localFile,
 						remoteFile));
-				ftp.storeFile(remoteFile, fis);
+				boolean storeSucceeded = ftp.storeFile(remoteFile, fis);
+				if (storeSucceeded) {
+					LOG.info("Store succeeded");
+				}
 				fis.close();
 			}
 
