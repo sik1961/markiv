@@ -91,15 +91,18 @@ public class MarkIVUpdate {
 
 			LOG.info("Mark IV Mgt - Uploading");
 			try {
-				m4h.uploadFiles();
-				LOG.info("Mark IV Mgt - Completed");
+				if (m4h.uploadFiles()) {
+					this.calendarLastUpdate = new LocalDateTime(
+							System.currentTimeMillis());
+					LOG.info("Mark IV Mgt - Last update time set to: "
+							+ this.calendarLastUpdate.toString());
+				}
+				
 			} catch (MarkIVException e) {
 				throw new MarkIVException("Caught Exception: ", e);
 			}
-			this.calendarLastUpdate = new LocalDateTime(
-					System.currentTimeMillis());
-			LOG.info("Mark IV Mgt - Last update time set to: "
-					+ this.calendarLastUpdate.toString());
+			
+			LOG.info("Mark IV Mgt - Completed");
 		} else {
 			LOG.info("Mark IV Mgt - Skipped - no calendar updates");
 		}

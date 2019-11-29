@@ -31,7 +31,7 @@ public class MarkIVUploader {
 	public boolean upload(final String project, final List<String> files)
 			throws MarkIVException {
 
-		boolean retBool = true;
+		boolean uploadSuccessful = true;
 		final FTPClient ftp = new FTPClient();
 		try {
 			//ftp.setPassiveLocalIPAddress(InetAddress.getLocalHost());
@@ -44,6 +44,8 @@ public class MarkIVUploader {
 					this.props.getProperty("FtpPw"));
 			if (loginSucceeded) {
 				LOG.info("Login succeeded");
+			} else {
+				uploadSuccessful = false;
 			}
 
 			for (final String file : files) {
@@ -57,7 +59,9 @@ public class MarkIVUploader {
 						remoteFile));
 				boolean storeSucceeded = ftp.storeFile(remoteFile, fis);
 				if (!storeSucceeded) {
-					LOG.info("Store failed - with code: " + ftp.getReplyString());
+					LOG.info("Upload failed - with code: " + ftp.getReplyString());
+				} else {
+					uploadSuccessful = false;
 				}
 				fis.close();
 			}
@@ -92,7 +96,12 @@ public class MarkIVUploader {
 
 						LOG.info(String.format("Uploading %s -> %s", localFile,
 								remoteFile));
-						ftp.storeFile(remoteFile, fis);
+						boolean storeSucceeded = ftp.storeFile(remoteFile, fis);
+						if (!storeSucceeded) {
+							LOG.info("Upload failed - with code: " + ftp.getReplyString());
+						} else {
+							uploadSuccessful = false;
+						}
 						fis.close();
 						newFiles = newFiles + "," + file;
 						fileAdded = true;
@@ -114,7 +123,11 @@ public class MarkIVUploader {
 			LOG.debug("Logging out...");
 			ftp.logout();
 			ftp.disconnect();
-			LOG.info("Upload completed normally");
+			if (uploadSuccessful) {
+				LOG.info("Upload completed successfully");
+			} else {
+				LOG.info("Upload failed");
+			}
 		} catch (final org.apache.commons.net.ftp.FTPConnectionClosedException cc) {
 			throw new MarkIVException(
 					"Upload not completed - Connection was closed unexpectedly");
@@ -123,7 +136,7 @@ public class MarkIVUploader {
 		} catch (final Exception e) {
 			throw new MarkIVException("Exception occurred:", e);
 		}
-		return retBool;
+		return uploadSuccessful;
 	}
 
 	/**

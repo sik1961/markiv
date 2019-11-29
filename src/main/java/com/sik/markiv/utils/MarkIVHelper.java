@@ -61,7 +61,7 @@ public class MarkIVHelper {
 		gallHtmlFile = props.getProperty("GalleryHtmlFile");
 	}
 
-	public void uploadFiles() throws MarkIVException {
+	public boolean uploadFiles() throws MarkIVException {
 		final MarkIVUploader mul = new MarkIVUploader(props);
 
 		final List<String> uploadFiles = new ArrayList<String>();
@@ -69,7 +69,7 @@ public class MarkIVHelper {
 			uploadFiles.add(f);
 		}
 
-		mul.upload(props.getProperty("ProjectName"), uploadFiles);
+		return mul.upload(props.getProperty("ProjectName"), uploadFiles);
 	}
 	
 	public void doAvailabilityStats() {
