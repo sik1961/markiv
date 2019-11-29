@@ -27,7 +27,7 @@ import com.sik.markiv.html.NewsPageBuilder;
 
 public class MarkIVHelper {
 	private static final Logger LOG = LogManager.getLogger(MarkIVHelper.class);
-	private static final String PROPS_FILE = "/Users/sik/Java/markiv/markiv.properties";
+	private static final String PROPS_FILE = "/home/sik/markiv/conf/markiv.properties";
 	private static final DecimalFormat DEC_FMT = new DecimalFormat("###.##");
 	private static final double DAYS_IN_YEAR = 365.0D;
 	private static final int HUNDRED = 100;

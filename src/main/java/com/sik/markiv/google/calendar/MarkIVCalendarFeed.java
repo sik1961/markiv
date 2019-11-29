@@ -22,7 +22,7 @@ import com.sik.markiv.utils.PropsUtils;
 public class MarkIVCalendarFeed {
 	private static final Logger LOG = LogManager.getLogger(MarkIVCalendarFeed.class);
 	private String feedUrl;
-	private static final String PROPS_FILE = "/Users/sik/Java/markiv/markiv.properties";
+	private static final String PROPS_FILE = "/home/sik/markiv/conf/markiv.properties";
 	
     public InputStream getFeed() {
     	final PropsUtils pr = new PropsUtils();

@@ -15,11 +15,11 @@ public class SnowManager {
 	public void updateSnow(final boolean snowing) {
 		System.out.println("Updating snow background.");
 		final File css = new File(
-				"/Users/sik/Documents/My Webs/mkiv/mkivmenu.css");
+				"/home/sik/markiv/mkiv-html/mkivmenu.css");
 		final File withSnow = new File(
-				"/Users/sik/Documents/My Webs/mkiv/mkivmenu_snow.css");
+				"/home/sik/markiv/mkiv-html/mkivmenu_snow.css");
 		final File withoutSnow = new File(
-				"/Users/sik/Documents/My Webs/mkiv/mkivmenu_nosnow.css");
+				"/home/sik/markiv/mkiv-html/mkivmenu_nosnow.css");
 		File inFile = null;
 		FileChannel src = null;
 		FileChannel dest = null;

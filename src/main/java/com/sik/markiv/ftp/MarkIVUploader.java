@@ -5,6 +5,7 @@ package com.sik.markiv.ftp;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -32,9 +33,10 @@ public class MarkIVUploader {
 
 		boolean retBool = true;
 		final FTPClient ftp = new FTPClient();
-		FileInputStream fis = null;
-
 		try {
+			//ftp.setPassiveLocalIPAddress(InetAddress.getLocalHost());
+			FileInputStream fis = null;
+		
 			LOG.debug("Connecting to: " + this.props.getProperty("FtpServer"));
 			ftp.connect(this.props.getProperty("FtpServer"));
 			LOG.debug("Logging in with id: " + this.props.getProperty("FtpId"));
@@ -54,8 +56,8 @@ public class MarkIVUploader {
 				LOG.info(String.format("Uploading %s -> %s", localFile,
 						remoteFile));
 				boolean storeSucceeded = ftp.storeFile(remoteFile, fis);
-				if (storeSucceeded) {
-					LOG.info("Store succeeded");
+				if (!storeSucceeded) {
+					LOG.info("Store failed - with code: " + ftp.getReplyString());
 				}
 				fis.close();
 			}
@@ -111,6 +113,7 @@ public class MarkIVUploader {
 
 			LOG.debug("Logging out...");
 			ftp.logout();
+			ftp.disconnect();
 			LOG.info("Upload completed normally");
 		} catch (final org.apache.commons.net.ftp.FTPConnectionClosedException cc) {
 			throw new MarkIVException(
