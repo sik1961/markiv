@@ -32,14 +32,14 @@ public class MarkIVUpdate {
 	MarkIVHelper m4h;
 	private EventManager em;
 	private MarkIVCalendarFeed feed;
-	private LocalDateTime calendarLastUpdate;
+	private LocalDateTime webLastUpdateTime;
 
 	public MarkIVUpdate() {
 		LOG.info("Mark IV Mgt - Initialised");
 		this.feed = new MarkIVCalendarFeed();
 		this.em = new EventManager(this.feed.getFeed());
 		this.m4h = new MarkIVHelper(em);
-		this.calendarLastUpdate = new LocalDateTime(0);
+		this.webLastUpdateTime = new LocalDateTime(0);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -64,9 +64,9 @@ public class MarkIVUpdate {
 		UpdateRecord lu = em.getLatestUpdate();
 
 		LOG.info("Cal updated: " + lu.getLastUpdated().toString(dtf) + 
-				" - Web updated: " + this.calendarLastUpdate.toString(dtf));
+				" - Web updated: " + this.webLastUpdateTime.toString(dtf));
 
-		if (forceUpdate || lu.getLastUpdated().isAfter(this.calendarLastUpdate)) {
+		if (forceUpdate || lu.getLastUpdated().isAfter(this.webLastUpdateTime)) {
 
 			if (!forceUpdate) {
 				LOG.info("Last update: " + lu.getLastUpdated().toString(dtf)
@@ -92,10 +92,10 @@ public class MarkIVUpdate {
 			LOG.info("Mark IV Mgt - Uploading");
 			try {
 				if (m4h.uploadFiles()) {
-					this.calendarLastUpdate = new LocalDateTime(
+					this.webLastUpdateTime = new LocalDateTime(
 							System.currentTimeMillis());
 					LOG.info("Mark IV Mgt - Last update time set to: "
-							+ this.calendarLastUpdate.toString());
+							+ this.webLastUpdateTime.toString());
 				}
 				
 			} catch (MarkIVException e) {
