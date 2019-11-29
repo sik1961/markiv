@@ -59,8 +59,7 @@ public class MarkIVUploader {
 						remoteFile));
 				boolean storeSucceeded = ftp.storeFile(remoteFile, fis);
 				if (!storeSucceeded) {
-					LOG.info("Upload failed - with code: " + ftp.getReplyString());
-				} else {
+					LOG.error("Upload failed - with code: " + ftp.getReplyString());
 					uploadSuccessful = false;
 				}
 				fis.close();
@@ -98,10 +97,9 @@ public class MarkIVUploader {
 								remoteFile));
 						boolean storeSucceeded = ftp.storeFile(remoteFile, fis);
 						if (!storeSucceeded) {
-							LOG.info("Upload failed - with code: " + ftp.getReplyString());
-						} else {
+							LOG.error("Upload failed - with code: " + ftp.getReplyString());
 							uploadSuccessful = false;
-						}
+						} 
 						fis.close();
 						newFiles = newFiles + "," + file;
 						fileAdded = true;
