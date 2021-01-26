@@ -4,14 +4,15 @@
 package com.sik.markiv.html;
 
 import java.io.IOException;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+//import org.joda.time.format.DateTimeFormat;
+//import org.joda.time.format.DateTimeFormatter;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
@@ -22,7 +23,7 @@ import com.sik.markiv.utils.M4DateUtils;
 public class NewsPageBuilder {
 	private static final Logger LOG = LogManager.getLogger(NewsPageBuilder.class);
 
-	private static final DateTimeFormatter NEWS_GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
+	private static final DateTimeFormatter NEWS_GIG_DF = DateTimeFormatter.ofPattern("EEE d MMMM ha");
 	private static final String NEWLINE = "\n";
 		
 	//private static final String FIXED_NEWS_1 = "<li>Pictures from our gig at The Hillsborough Hotel are on the gallery page - click <a href=\"gallery.htm\">here</a>";
@@ -79,7 +80,7 @@ public class NewsPageBuilder {
 		if (nextPublicGig != null) {
 			LOG.info("Next gig: " + nextPublicGig.toString());
 			newsHtml.append(String.format(HtmlSnippets.NEWS_FORMAT, 
-					NEWS_GIG_DF.print(this.du.adjustForDaylightSaving(nextPublicGig.getStartDate()).toDateTime()), 
+					this.du.adjustForDaylightSaving(nextPublicGig.getStartDate()).format(NEWS_GIG_DF), 
 					HtmlSnippets.cleanForHtml(nextPublicGig.getLocation())));
 		}
 		

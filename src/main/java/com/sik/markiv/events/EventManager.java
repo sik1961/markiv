@@ -1,5 +1,6 @@
 package com.sik.markiv.events;
 import java.io.InputStream;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.LocalDateTime;
+//import org.joda.time.LocalDateTime;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.CalendarEventComparator;
@@ -48,7 +49,7 @@ public class EventManager {
 	 * @return
 	 */
 	public List<CalendarEvent> getEventsAfter(final long startTime) {
-		final LocalDateTime fromDate = new LocalDateTime(startTime);
+		final LocalDateTime fromDate = LocalDateTime.ofEpochSecond(startTime, 0, null);
 		final List<CalendarEvent> filteredEvents = new ArrayList<CalendarEvent>();
 		for (final CalendarEvent e : this.allEvents) {
 			if (e.getStartDate().isAfter(fromDate)) {
@@ -93,7 +94,7 @@ public class EventManager {
 			final long startTime, final boolean suppressDupes) {
 		final List<CalendarEvent> filteredEvents = new ArrayList<CalendarEvent>();
 		for (final CalendarEvent e : this.allEvents) {
-			if (e.getStartDate().isAfter(new LocalDateTime(startTime))) {
+			if (e.getStartDate().isAfter(LocalDateTime.ofEpochSecond(startTime, 0, null))) {
 				if (e.getEventType() == eventType) {
 					if (!suppressDupes || !eu.eventExists(e, filteredEvents)) {
 						filteredEvents.add(e);
@@ -172,18 +173,15 @@ public class EventManager {
 		int increment = -1;
 		LocalDateTime untilDate = null;
 		if (evt.get(CalFields.RRULE_DAILY) != null) {
-			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_DAILY)))));
+			untilDate = this.dateUtils.setEndOf(this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_DAILY))));
 			rType = RepeatType.DAILY;
 			increment = 1;
 		} else if (evt.get(CalFields.RRULE_WEEKLY) != null) {
-			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_WEEKLY)))));
+			untilDate = this.dateUtils.setEndOf(this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_WEEKLY))));
 			rType = RepeatType.WEEKLY;
 			increment = 7;
 		} else if (evt.get(CalFields.RRULE_MONTHLY) != null) {
-			untilDate = this.dateUtils.setEndOf(new LocalDateTime(
-					this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_MONTHLY)))));
+			untilDate = this.dateUtils.setEndOf(this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.RRULE_MONTHLY))));
 			rType = RepeatType.MONTHLY;
 			increment = 1;
 		} else {
@@ -194,19 +192,16 @@ public class EventManager {
 		LocalDateTime eDate = null;
 
 		if (evt.get(CalFields.DTSTART) != null) {
-			sDate = new LocalDateTime(this.dateUtils.formatDate(this.dateUtils
-					.stdDate(evt.get(CalFields.DTSTART))));
+			sDate = this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.DTSTART)));
 		} else {
 			throw new MarkIVException("DTSTART is null for event: " + evt);
 		}
 		if (evt.get(CalFields.DTEND) != null) {
-			eDate = new LocalDateTime(
-					this.dateUtils.subtractOneMillisecond(this.dateUtils.formatDate(this.dateUtils
-							.stdDate(evt.get(CalFields.DTEND)))));
+			eDate = this.dateUtils.subtractOneMillisecond(this.dateUtils.formatDate(this.dateUtils.stdDate(evt.get(CalFields.DTEND))));
 		} else {
 			eDate = this.dateUtils.setEndOf(sDate);
 			LOG.warn("WARNING - End date missing on: " + evt + " - using: "
-					+ eDate.toDateTime());
+					+ eDate);
 		}
 
 		if (this.dateUtils.isBefore(untilDate, eDate)) {
@@ -220,7 +215,7 @@ public class EventManager {
 
 		this.debug("About to add repeats for Repeat Rule: " + rType
 				+ " - Increment: " + increment + " - Until: "
-				+ untilDate.toDateTime());
+				+ untilDate);
 		this.debug("Event: " + evt);
 		List<LocalDateTime> excludedDates = eu.getExcludedDates(evt);
 

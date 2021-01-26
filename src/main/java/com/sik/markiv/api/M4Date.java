@@ -1,8 +1,6 @@
 package com.sik.markiv.api;
 
-import java.util.Date;
-
-import org.joda.time.LocalDateTime;
+import java.time.LocalDateTime;
 
 /**
  * @author sik
@@ -14,14 +12,30 @@ public class M4Date {
 	private LocalDateTime endTime;
 	
 	public M4Date() {
-		LocalDateTime now = new LocalDateTime(new Date());
-		this.startTime = now.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-		this.endTime = now.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+		LocalDateTime now = LocalDateTime.now();
+		this.startTime = now
+				.withHour(0)
+				.withMinute(0)
+				.withSecond(0)
+				.withNano(0);
+		this.endTime = now
+				.withHour(23)
+				.withMinute(59)
+				.withSecond(59)
+				.withNano(999999);
 	}
 	
 	public M4Date(LocalDateTime dateTime) {
-		this.startTime = dateTime.withHourOfDay(0).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
-		this.endTime = dateTime.withHourOfDay(23).withMinuteOfHour(59).withSecondOfMinute(59).withMillisOfSecond(999);
+		this.startTime = dateTime
+				.withHour(0)
+				.withMinute(0)
+				.withSecond(0)
+				.withNano(0);
+		this.endTime = dateTime
+				.withHour(23)
+				.withMinute(59)
+				.withSecond(59)
+				.withNano(999999);
 	}
 	
 	/**

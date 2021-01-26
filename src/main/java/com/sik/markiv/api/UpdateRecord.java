@@ -1,16 +1,18 @@
 package com.sik.markiv.api;
+
+import java.time.LocalDateTime;
+
 /**
  * @author sik
  *
  */
-import org.joda.time.LocalDateTime;
 
 public class UpdateRecord {
     private CalendarEvent event;
     private LocalDateTime lastUpdated;
     public UpdateRecord() {
         super();
-        this.lastUpdated = new LocalDateTime(0);
+        this.lastUpdated = LocalDateTime.ofEpochSecond(0L, 0, null);
     }
     public UpdateRecord(final CalendarEvent lastUpdatedBy, final LocalDateTime lastUpdated) {
         super();

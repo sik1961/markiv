@@ -4,15 +4,17 @@
 package com.sik.markiv.html;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+//import org.joda.time.LocalDateTime;
+//import org.joda.time.format.DateTimeFormat;
+//import org.joda.time.format.DateTimeFormatter;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.EventType;
@@ -24,8 +26,8 @@ import com.sik.markiv.utils.M4DateUtils;
 public class GigsAvailabilityBuilder {
 	private static final Logger LOG = LogManager.getLogger(GigsAvailabilityBuilder.class);
 
-	private static final DateTimeFormatter GIG_DF = DateTimeFormat.forPattern("EEE d MMMM ha");
-	private static final DateTimeFormatter AVL_DF = DateTimeFormat.forPattern("EEE d MMM yyyy").withLocale(Locale.UK);
+	private static final DateTimeFormatter GIG_DF = DateTimeFormatter.ofPattern("EEE d MMMM ha");
+	private static final DateTimeFormatter AVL_DF = DateTimeFormatter.ofPattern("EEE d MMM yyyy").withLocale(Locale.UK);
 
 	private static final String GIG = "gig";
 	private static final int GIG_DAYS_AHEAD = 183;
@@ -103,7 +105,7 @@ public class GigsAvailabilityBuilder {
 						}
 						if (location != null && location.length() > 0) {
 							gigsHtml.append(String.format(HtmlSnippets.GIG1_FORMAT,
-											GIG_DF.print(this.du.adjustForDaylightSaving(e.getStartDate()).toDateTime()), 
+											this.du.adjustForDaylightSaving(e.getStartDate()).format(GIG_DF), 
 											getLocName(location)));
 							gigsHtml.append(NEWLINE);
 							gigsHtml.append(String.format(HtmlSnippets.GIG2_FORMAT,
@@ -236,12 +238,12 @@ public class GigsAvailabilityBuilder {
 
 			}
 			availHtml.append(String.format(HtmlSnippets.AVAIL_FMT, 
-					AVL_DF.print(rolling.getStartTime()), 
+					rolling.getStartTime().format(AVL_DF), 
 					dateClear ? AVAILABLE:EMPTY_STRING, 
 					remarks.toString()));
 			availHtml.append(HtmlSnippets.FONT_END + NEWLINE);
 
-			if (AVL_DF.print(rolling.getStartTime()).startsWith(SUN)) {
+			if (rolling.getStartTime().format(AVL_DF).startsWith(SUN)) {
 				availHtml.append(HtmlSnippets.HTML_HR + NEWLINE);
 			}
 			rolling.rollDate(1);
@@ -254,14 +256,14 @@ public class GigsAvailabilityBuilder {
 	}
 
 	private LocalDateTime getDateHence(final int daysAhead) {
-		return new LocalDateTime().plusDays(daysAhead);
+		return LocalDateTime.now().plusDays(daysAhead);
 	}
 
 	
 
 	private Boolean isRecentlyUpdated(final LocalDateTime modDate) {
 		return modDate.plusDays(7).isAfter(
-				new LocalDateTime(System.currentTimeMillis()));
+				LocalDateTime.now());
 	}
 	
 	private void debug(String msg) {

@@ -3,22 +3,24 @@ package com.sik.markiv.utils;
  * @author sik
  *
  */
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-import org.joda.time.DateTimeZone;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.sik.markiv.api.CalendarEvent;
 import com.sik.markiv.api.RepeatType;
 
 public class M4DateUtils {
-	private static final DateTimeFormatter DFZ = DateTimeFormat.forPattern("YYYYMMDD'T'HHmmSS'Z'");
-	private static final DateTimeFormatter DFT = DateTimeFormat.forPattern("YYYYMMDD'T'HHmmSS");
-	private static final DateTimeFormatter DFS = DateTimeFormat.forPattern("YYYYMMDD");
+	
+	private static final Logger LOG = LogManager.getLogger(M4DateUtils.class);
+	private static final DateTimeFormatter DFZ = DateTimeFormatter.ofPattern("YYYYMMDD'T'HHmmSS'Z'");
+	private static final DateTimeFormatter DFT = DateTimeFormatter.ofPattern("YYYYMMDD'T'HHmmSS");
+	private static final DateTimeFormatter DFS = DateTimeFormatter.ofPattern("YYYYMMDD");
+	private static final DateTimeFormatter YYYYMMDDHHMMSS = DateTimeFormatter.ofPattern("yyyyMMddhhmmss");
+	private static final DateTimeFormatter YYYYMMDD = DateTimeFormatter.ofPattern("yyyyMMdd");
 	private static final int DST_START_DAY = 85;
 	private static final int DST_END_DAY = 300;
 	private static final int VALID_DATE_16 = 16;
@@ -32,13 +34,14 @@ public class M4DateUtils {
 	private static final String EMPTY = "";
 	private static final String T = "T";
 	private static final String Z = "Z";
-	private static final String YYYYMMDDHHMMSS = "yyyyMMddhhmmss";
-	private static final String YYYYMMDD = "yyyyMMdd";
+	private static final String TME_SFX = "123456";
+	//private static final String YYYYMMDDHHMMSS = "yyyyMMddhhmmss";
+	//private static final String YYYYMMDD = "yyyyMMdd";
 	private static final String VALUE = "VALUE=DATE:";
 	private static final String TZID = "TZID=Europe/London:";
 	public static final int DAY_LIMIT = 7;
 	public static final int OBSOLETE_DAY_LIMIT = 2;
-	public static final LocalDateTime RECENT_UPDATE_DATE = new LocalDateTime(new Date()).minusDays(DAY_LIMIT);
+	public static final LocalDateTime RECENT_UPDATE_DATE = LocalDateTime.now().minusDays(DAY_LIMIT);
 		
 	/**
 	 * Parse the input string to isolate the date string. 
@@ -84,7 +87,7 @@ public class M4DateUtils {
 	 * @return
 	 */
 	public LocalDateTime subtractOneMillisecond(final LocalDateTime inDate) {
-		return inDate.minusMillis(1);
+		return inDate.minusNanos(1000L);
 	}
 
 	/**
@@ -93,27 +96,20 @@ public class M4DateUtils {
 	 * @return
 	 */
 	public LocalDateTime formatDate(final String inDate) {
-		LocalDateTime outDate = new LocalDateTime(DateTimeZone.UTC.getMillisKeepLocal(DateTimeZone.getDefault(),0));
+		LocalDateTime outDate = LocalDateTime.now();
 		
-		try {
-			if (inDate.length() == VALID_DATE_16) {
-				outDate = new LocalDateTime(
-						new SimpleDateFormat(YYYYMMDDHHMMSS).parse(inDate
-								.replace(T, EMPTY).replace(Z, EMPTY)));
-			} else if (inDate.length() == VALID_DATE_15) {
-				outDate = new LocalDateTime(
-						new SimpleDateFormat(YYYYMMDDHHMMSS).parse(inDate
-								.replace(T, EMPTY)));
-			} else if (inDate.length() == VALID_DATE_8) {
-				outDate = new LocalDateTime(
-						new SimpleDateFormat(YYYYMMDD).parse(inDate));
-			} else {
-				throw new IllegalStateException("Unexpected date format:"
-						+ inDate + " - len=" + inDate.length());
-			}
-		} catch (final ParseException e) {
-			throw new IllegalStateException("Unexpected date format:" + inDate);
+		if (inDate.length() == VALID_DATE_16) {
+			outDate = LocalDateTime.parse(inDate.replace(T, EMPTY).replace(Z, EMPTY), YYYYMMDDHHMMSS);
+		} else if (inDate.length() == VALID_DATE_15) {
+			outDate = LocalDateTime.parse(inDate.replace(T, EMPTY), YYYYMMDDHHMMSS);
+		} else if (inDate.length() == VALID_DATE_8) {
+			LOG.warn("Short date encountered: " + inDate + " - appending nominal time suffix: " + TME_SFX);
+			outDate = LocalDateTime.parse(inDate + TME_SFX, YYYYMMDDHHMMSS);
+		} else {
+			throw new IllegalStateException("Unexpected date format:"
+					+ inDate + " - len=" + inDate.length());
 		}
+		
 		return outDate;
 	}
 	
@@ -136,14 +132,14 @@ public class M4DateUtils {
 	 * @return
 	 */
 	public LocalDateTime formatLocalDate(final String inDate) {
-		LocalDateTime outDate = new LocalDateTime(DateTimeZone.UTC.getMillisKeepLocal(DateTimeZone.getDefault(),0));
+		LocalDateTime outDate = LocalDateTime.now();
 		
 		if (inDate.length() == VALID_DATE_16) {
-			outDate = new LocalDateTime(DFZ.parseDateTime(inDate));
+			outDate = LocalDateTime.parse(inDate, DFZ);
 		} else if (inDate.length() == VALID_DATE_15) {
-			outDate = new LocalDateTime(DFT.parseDateTime(inDate));
+			outDate = LocalDateTime.parse(inDate, DFT);
 		} else if (inDate.length() == VALID_DATE_8) {
-			outDate = new LocalDateTime(DFS.parseDateTime(inDate));
+			outDate = LocalDateTime.parse(inDate, DFS);
 		} else {
 			throw new IllegalStateException("Unexpected date format:"
 					+ inDate + " - len=" + inDate.length());
@@ -197,7 +193,7 @@ public class M4DateUtils {
 	 * @return
 	 */
 	public boolean isRecent(final LocalDateTime t1) {
-		LocalDateTime recent = new LocalDateTime(new Date()).minusDays(OBSOLETE_DAY_LIMIT);
+		LocalDateTime recent = LocalDateTime.now().minusDays(OBSOLETE_DAY_LIMIT);
 		return t1.isAfter(recent);
 	}
 	
@@ -207,10 +203,13 @@ public class M4DateUtils {
 	 * @return
 	 */
 	public LocalDateTime setEndOf(LocalDateTime dateTime) {
-		return new LocalDateTime(dateTime)
-			.withHourOfDay(DAY_END_HH)
-			.withMinuteOfHour(DAY_END_MM)
-			.withSecondOfMinute(DAY_END_SS)
-			.withMillisOfSecond(DAY_END_MS);
+		return LocalDateTime
+				.of(dateTime.getYear(), 
+					dateTime.getMonth(), 
+					dateTime.getDayOfMonth(), 
+					DAY_END_HH, 
+					DAY_END_MM, 
+					DAY_END_SS, 
+					DAY_END_MS);
 	}
 }

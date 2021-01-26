@@ -1,14 +1,17 @@
 package com.sik.markiv;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 /**
  * @author sik
  */
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.joda.time.LocalDateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
+//import org.joda.time.LocalDateTime;
+//import org.joda.time.format.DateTimeFormat;
+//import org.joda.time.format.DateTimeFormatter;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -24,7 +27,7 @@ import com.sik.markiv.utils.MarkIVHelper;
 @EnableScheduling
 public class MarkIVUpdate {
 
-	DateTimeFormatter dtf = DateTimeFormat.forPattern("dd/MM/yyyy HH:mm:ss");
+	DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
 	private static final String DAYTIME = "0 0 7-23 * * *"; // hourly 7am-11pm
 	private static final String END_OF_DAY = "0 30 23 * * *"; // daily @ 11:30pm
 	private static final Logger LOG = LogManager.getLogger(MarkIVUpdate.class);
@@ -39,7 +42,7 @@ public class MarkIVUpdate {
 		this.feed = new MarkIVCalendarFeed();
 		this.em = new EventManager(this.feed.getFeed());
 		this.m4h = new MarkIVHelper(em);
-		this.webLastUpdateTime = new LocalDateTime(0);
+		this.webLastUpdateTime = LocalDateTime.ofEpochSecond(0, 0, null);
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -63,13 +66,13 @@ public class MarkIVUpdate {
 
 		UpdateRecord lu = em.getLatestUpdate();
 
-		LOG.info("Cal updated: " + lu.getLastUpdated().toString(dtf) + 
-				" - Web updated: " + this.webLastUpdateTime.toString(dtf));
+		LOG.info("Cal updated: " + lu.getLastUpdated().format(dtf) + 
+				" - Web updated: " + this.webLastUpdateTime.format(dtf));
 
 		if (forceUpdate || lu.getLastUpdated().isAfter(this.webLastUpdateTime)) {
 
 			if (!forceUpdate) {
-				LOG.info("Last update: " + lu.getLastUpdated().toString(dtf)
+				LOG.info("Last update: " + lu.getLastUpdated().format(dtf)
 						+ " (" + lu.getEvent().getEventType() + ":"
 						+ lu.getEvent().getSummary() + ")");
 			}
@@ -92,8 +95,7 @@ public class MarkIVUpdate {
 			LOG.info("Mark IV Mgt - Uploading");
 			try {
 				if (m4h.uploadFiles()) {
-					this.webLastUpdateTime = new LocalDateTime(
-							System.currentTimeMillis());
+					this.webLastUpdateTime = LocalDateTime.now();
 					LOG.info("Mark IV Mgt - Last update time set to: "
 							+ this.webLastUpdateTime.toString());
 				}
